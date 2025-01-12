@@ -133,6 +133,28 @@ export async function updateWholesalerInfo(
   };
 }
 
+export async function updateUserRole(wholesalerId: string, newRole: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("wholesalers")
+    .update({ role: newRole })
+    .eq("idNum", wholesalerId);
+
+  if (error) {
+    console.error("Error updating user role:", error.message);
+    return { success: false, message: error.message };
+  }
+
+  revalidatePath("/admin/wholesalers");
+
+  return {
+    success: true,
+    message: "Role updated successfully.",
+    data,
+  };
+}
+
 export async function updateWholesalerAvatar(idNum: string, avatarUrl: string) {
   const supabase = await createClient();
 
