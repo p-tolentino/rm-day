@@ -82,8 +82,8 @@ import ImageViewer from "@/components/ui/image-viewer";
 import { subTeams } from "@/utils/subteams";
 import { UserLocation } from "../../ranking/_components/ranking-table";
 import { Switch } from "@/components/ui/switch";
-import { updateUserRole } from "@/actions/wholesaler";
 import { toast } from "sonner";
+import { RoleToggle } from "./role-toggle";
 
 function formatCurrency(amount: number) {
   if (isNaN(amount)) return "Invalid amount";
@@ -159,40 +159,7 @@ const createColumns = (
     header: "Role",
     cell: ({ row }) => {
       const user = row.original;
-      const [isLeader, setIsLeader] = useState(user.role === "LEADER");
-
-      const handleRoleChange = async (checked: boolean) => {
-        const originalRole = isLeader; // Save original state
-        setIsLeader(checked); // Optimistically update the UI
-
-        try {
-          const newRole = checked ? "LEADER" : "WHOLESALER";
-          const result = await updateUserRole(user.idNum, newRole);
-
-          if (result.success) {
-            toast.success(result.message);
-          } else {
-            // Revert to the original state if the update fails
-            setIsLeader(originalRole);
-            toast.error(result.message || "Failed to update role.");
-          }
-        } catch (error) {
-          // Revert to the original state if an error occurs
-          setIsLeader(originalRole);
-          toast.error("An unexpected error occurred. Please try again.");
-        }
-      };
-
-      return (
-        <div className="flex items-center">
-          <Switch
-            checked={isLeader}
-            onCheckedChange={handleRoleChange}
-            className="mr-2"
-          />
-          <span>{isLeader ? "Leader" : "Wholesaler"}</span>
-        </div>
-      );
+      return <RoleToggle userId={user.id} initialRole={user.role} />;
     },
   },
   {
