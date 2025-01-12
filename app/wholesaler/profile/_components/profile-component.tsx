@@ -45,6 +45,7 @@ export type SubteamTitle =
   | "PM7"
   | "SG"
   | "RAINMAKERS"
+  | "ADMIN"
   | "PLACEHOLDER";
 
 export const ACHIEVEMENT_IMAGES: Record<AchievementTitle, string> = {
@@ -88,6 +89,9 @@ export const SUBTEAM_IMAGES: Record<SubteamTitle, string> = {
   PM7: "/images/subteams/pm7.jpg",
   RAINMAKERS: "/images/subteams/rainmakers.png",
   SG: "/images/subteams/sg.jpg",
+
+  // ADMIN
+  ADMIN: "/images/subteams/rm.png",
 
   // Placeholder for missing images
   PLACEHOLDER: "/images/subteams/placeholder.png",
