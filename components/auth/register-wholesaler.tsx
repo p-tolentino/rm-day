@@ -144,6 +144,7 @@ export default function RegisterWholesalerForm({
             className="space-y-4 w-full py-4 flex flex-col"
           >
             <div className="space-y-4">
+              {/* Upload Picture */}
               <FormField
                 control={form.control}
                 name="avatar"
@@ -191,6 +192,7 @@ export default function RegisterWholesalerForm({
                 )}
               />
 
+              {/* ID Number, Subteam, Sponsor */}
               <div className="grid grid-cols-12 gap-4">
                 <div className="col-span-4">
                   <FormField
@@ -254,6 +256,7 @@ export default function RegisterWholesalerForm({
                 </div>
               </div>
 
+              {/* Full Name */}
               <div className="grid grid-cols-12 gap-4">
                 <div className="col-span-4">
                   <FormField
@@ -263,7 +266,12 @@ export default function RegisterWholesalerForm({
                       <FormItem>
                         <FormLabel>First Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="First" type="text" {...field} />
+                          <Input
+                            placeholder="First"
+                            type="text"
+                            {...field}
+                            value={field.value?.toLocaleUpperCase()}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -279,7 +287,12 @@ export default function RegisterWholesalerForm({
                       <FormItem>
                         <FormLabel>Middle Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="Middle" type="text" {...field} />
+                          <Input
+                            placeholder="Middle"
+                            type="text"
+                            {...field}
+                            value={field.value?.toLocaleUpperCase()}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -295,7 +308,12 @@ export default function RegisterWholesalerForm({
                       <FormItem>
                         <FormLabel>Last Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="Last" type="text" {...field} />
+                          <Input
+                            placeholder="Last"
+                            type="text"
+                            {...field}
+                            value={field.value?.toLocaleUpperCase()}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -304,6 +322,7 @@ export default function RegisterWholesalerForm({
                 </div>
               </div>
 
+              {/* Profession, Date of Birth */}
               <div className="grid grid-cols-12 gap-4 items-center">
                 <div className="col-span-6">
                   <FormField
@@ -313,7 +332,11 @@ export default function RegisterWholesalerForm({
                       <FormItem className="flex flex-col gap-2">
                         <FormLabel>Profession</FormLabel>
                         <FormControl>
-                          <Input placeholder="Profession" {...field} />
+                          <Input
+                            placeholder="Profession"
+                            {...field}
+                            value={field.value?.toLocaleUpperCase()}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -341,6 +364,7 @@ export default function RegisterWholesalerForm({
                 </div>
               </div>
 
+              {/* Country, State, City */}
               <FormField
                 control={form.control}
                 name="location"
@@ -376,6 +400,7 @@ export default function RegisterWholesalerForm({
                 )}
               />
 
+              {/* Email */}
               <FormField
                 control={form.control}
                 name="email"

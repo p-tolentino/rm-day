@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import AchievementViewer from "@/components/ui/achievement-viewer";
 import { AvatarUpdateButton } from "@/components/profile/update-avatar";
+import { EditProfileDialog } from "./edit-profile";
 
 type Achievement = {
   title: string;
@@ -142,7 +143,10 @@ export default function ProfilePage({ profile }: { profile: any }) {
 
           <Card>
             <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
+              <CardTitle className="flex justify-between items-center">
+                Personal Information
+                <EditProfileDialog profile={profile} />
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -167,7 +171,7 @@ export default function ProfilePage({ profile }: { profile: any }) {
                 <div>
                   <Label className="text-gray-400">LOCATION</Label>
                   <p className="text-sm">
-                    {profile.city + ", " + profile.country}
+                    {`${profile.city}${profile.city && `,`} ${profile.country}`}
                   </p>
                 </div>
                 <div>

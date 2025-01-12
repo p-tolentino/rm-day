@@ -76,6 +76,63 @@ export async function registerWholesalerInfo(
   };
 }
 
+export async function updateWholesalerInfo(
+  values: z.infer<typeof registerSchema>
+) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, message: "User is not logged in." };
+  }
+
+  const {
+    dob,
+    email,
+    firstName,
+    idNum,
+    lastName,
+    location,
+    middleName,
+    profession,
+    sponsor,
+    subTeam,
+    avatar,
+  } = values;
+
+  const { data, error } = await supabase
+    .from("wholesalers")
+    .update({
+      dob: new Date(dob),
+      email: email.toLocaleLowerCase(),
+      firstName: firstName.toLocaleUpperCase(),
+      middleName: middleName?.toLocaleUpperCase(),
+      lastName: lastName.toLocaleUpperCase(),
+      country: location[0],
+      city: location[1],
+      profession: profession.toLocaleUpperCase(),
+      sponsor,
+      subTeam,
+      avatar,
+    })
+    .eq("idNum", idNum);
+
+  if (error) {
+    return { success: false, message: error.message };
+  }
+
+  revalidatePath("/wholesaler/profile");
+
+  return {
+    success: true,
+    message: "Profile updated successfully.",
+    data,
+  };
+}
+
 export async function updateWholesalerAvatar(idNum: string, avatarUrl: string) {
   const supabase = await createClient();
 

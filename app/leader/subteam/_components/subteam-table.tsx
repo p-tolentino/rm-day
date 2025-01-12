@@ -179,7 +179,7 @@ const createColumns = (
   },
   {
     accessorKey: "city",
-    header: "City",
+    header: "State/City",
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
