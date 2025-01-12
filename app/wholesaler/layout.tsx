@@ -1,0 +1,54 @@
+import { redirect } from "next/navigation";
+
+import { createClient } from "@/utils/supabase/server";
+
+import { AppSidebar } from "@/components/ui/app-sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AuthCheck } from "@/components/auth/auth-check";
+import { getCurrentRole, getCurrentUser } from "@/data/wholesalers";
+import { getDeadline } from "@/data/deadline";
+import { hasSubmittedThisMonth } from "@/data/reports";
+import { getAllCategories, getAllProducts } from "@/data/food";
+
+export default async function UserLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  if (error || !user) {
+    redirect("/login");
+  }
+
+  const role = await getCurrentRole();
+
+  const acceptReports = await getDeadline();
+
+  const profile = await getCurrentUser();
+
+  const categories = await getAllCategories();
+
+  const products = await getAllProducts();
+
+  const hasSubmitted = await hasSubmittedThisMonth();
+
+  return (
+    <SidebarProvider>
+      <AuthCheck />
+      <AppSidebar
+        userRole={role}
+        acceptReports={acceptReports}
+        user={profile}
+        products={products}
+        categories={categories}
+        hasSubmitted={hasSubmitted}
+      />
+      <SidebarInset>{children}</SidebarInset>
+    </SidebarProvider>
+  );
+}
