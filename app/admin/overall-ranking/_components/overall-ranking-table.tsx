@@ -540,17 +540,12 @@ export function OverallRankingDataTable({
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  <TableHead className="sticky left-0 z-10 bg-white">
-                    Rank
-                  </TableHead>
+                  <TableHead>Rank</TableHead>
                   {headerGroup.headers.map((header) => {
                     return (
                       <TableHead
                         key={header.id}
-                        className={cn(
-                          "whitespace-nowrap",
-                          header.id === "rank" && "sticky left-0 z-10 bg-white" // Sticky header
-                        )}
+                        className={cn("whitespace-nowrap")}
                       >
                         {header.isPlaceholder
                           ? null
@@ -570,7 +565,7 @@ export function OverallRankingDataTable({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
-                  <TableCell className="sticky left-0 z-10 bg-white">
+                  <TableCell>
                     <div
                       className={cn(
                         "flex justify-center items-center h-10 rounded-lg",
@@ -588,11 +583,7 @@ export function OverallRankingDataTable({
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className={cn(
-                        "whitespace-nowrap",
-                        cell.column.id === "rank" &&
-                          "sticky left-0 z-10 bg-white" // Sticky cell
-                      )}
+                      className={cn("whitespace-nowrap")}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,

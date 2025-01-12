@@ -56,7 +56,7 @@ export async function registerWholesalerInfo(
     lastName: lastName.toLocaleUpperCase(),
     country: location[0],
     city: location[1],
-    profession,
+    profession: profession.toLocaleUpperCase(),
     sponsor,
     subTeam,
     avatar,

@@ -11,9 +11,11 @@ export const metadata: Metadata = {
 export default async function FoodsPage() {
   const categories = await getAllCategories();
 
-  const formattedCategories = categories.map((category) => {
-    return category.name;
-  });
+  const formattedCategories = categories
+    .map((category) => {
+      return category.name;
+    })
+    .sort();
 
   const products = await getAllProducts();
 

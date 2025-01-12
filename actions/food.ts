@@ -29,7 +29,7 @@ export async function createCategory(values: z.infer<typeof categorySchema>) {
   const { name } = values;
 
   const { data, error } = await supabase.from("categories").insert({
-    name,
+    name: name.toLocaleUpperCase(),
   });
 
   if (error) {
@@ -63,7 +63,7 @@ export async function createProduct(values: z.infer<typeof productSchema>) {
 
   const { data, error } = await supabase.from("products").insert({
     category,
-    name,
+    name: name.toLocaleUpperCase(),
     points,
   });
 
