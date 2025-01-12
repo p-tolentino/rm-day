@@ -241,8 +241,24 @@ export function OverallRankingDataTable({
 
   const [openCountry, setOpenCountry] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [reportTypeFilter, setReportTypeFilter] = useState<
+    "all" | "international" | "local"
+  >("all");
 
   const columns = useMemo(() => createColumns(userLocations), [userLocations]);
+
+  const filteredData = useMemo(() => {
+    let filtered = data;
+
+    // Apply report type filter
+    if (reportTypeFilter === "international") {
+      filtered = filtered.filter((report) => report.country !== "Philippines");
+    } else if (reportTypeFilter === "local") {
+      filtered = filtered.filter((report) => report.country === "Philippines");
+    }
+
+    return filtered;
+  }, [data, reportTypeFilter]);
 
   useEffect(() => {
     if (globalFilter) {
@@ -289,7 +305,7 @@ export function OverallRankingDataTable({
   };
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -315,6 +331,7 @@ export function OverallRankingDataTable({
     setGlobalFilter("");
     setColumnFilters([]);
     setSelectedCountry(null);
+    setReportTypeFilter("all");
   };
 
   return (
@@ -358,6 +375,31 @@ export function OverallRankingDataTable({
 
         {/* Column Filters */}
         <div className="flex items-end space-x-2">
+          <div className="flex flex-col flex-1">
+            <label
+              htmlFor="report-type-filter"
+              className="text-sm font-medium mr-2"
+            >
+              Report Type:
+            </label>
+            <Select
+              onValueChange={(value) =>
+                setReportTypeFilter(value as "all" | "international" | "local")
+              }
+              value={reportTypeFilter}
+              disabled={!(data.length > 0)}
+            >
+              <SelectTrigger id="report-type-filter">
+                <SelectValue placeholder="Select..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="international">International</SelectItem>
+                <SelectItem value="local">Local (Philippines)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div>
             <label
               htmlFor="subTeam-filter"
