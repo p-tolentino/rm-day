@@ -49,13 +49,13 @@ export async function registerWholesalerInfo(
 
   const { data, error } = await supabase.from("wholesalers").insert({
     dob: new Date(dob),
-    email,
-    firstName,
+    email: email.toLocaleLowerCase(),
     idNum,
-    lastName,
+    firstName: firstName.toLocaleUpperCase(),
+    middleName: middleName?.toLocaleUpperCase(),
+    lastName: lastName.toLocaleUpperCase(),
     country: location[0],
     city: location[1],
-    middleName,
     profession,
     sponsor,
     subTeam,
