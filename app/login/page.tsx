@@ -37,7 +37,7 @@ export default async function LoginPage() {
         <Image
           height={4000}
           width={4000}
-          src="/RM-cover.jpeg"
+          src="/images/RM-cover.jpeg"
           alt="RM Company Photo"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
           priority
