@@ -110,7 +110,7 @@ export default function LocationSelector({
       onStateChange(state?.name || "");
       setOpenStateDropdown(false);
     },
-    [onStateChange, onCityChange]
+    [onStateChange]
   );
 
   const handleCitySelect = useCallback(
