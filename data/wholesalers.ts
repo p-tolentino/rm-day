@@ -113,7 +113,9 @@ export const getWholesalerName = async (idNum: string | undefined) => {
   }
 
   return {
-    name: `${profile.firstName} ${profile.middleName[0]}. ${profile.lastName}`,
+    name: `${profile.firstName} ${profile.middleName[0]}${
+      profile.middleName && `.`
+    } ${profile.lastName}`,
   };
 };
 

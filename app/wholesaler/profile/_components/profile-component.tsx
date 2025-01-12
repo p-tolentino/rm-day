@@ -149,11 +149,9 @@ export default function ProfilePage({ profile }: { profile: any }) {
                 <div>
                   <Label className="text-gray-400">COMPLETE NAME</Label>
                   <p className="text-sm">
-                    {profile.firstName +
-                      " " +
-                      profile.middleName[0] +
-                      ". " +
-                      profile.lastName}
+                    {`${profile.firstName} ${profile.middleName[0]}${
+                      profile.middleName && `.`
+                    } ${profile.lastName}`}
                   </p>
                 </div>
                 <div>
