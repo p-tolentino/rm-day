@@ -367,6 +367,9 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
 
   const [openCountry, setOpenCountry] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [reportTypeFilter, setReportTypeFilter] = useState<
+    "all" | "international" | "local"
+  >("all");
 
   const columns = useMemo(
     () => createColumns(userLocations), // Pass the static rank array
@@ -374,22 +377,28 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
   );
 
   const filteredData = useMemo(() => {
-    if (!date?.from) return data; // If no start date is selected, return all data
+    let filtered = data;
 
-    const startDate = startOfDay(date.from); // Normalize start date
-    const endDate = startOfDay(date.to || date.from); // Normalize end date
+    // Apply date filter
+    if (date?.from) {
+      const startDate = startOfDay(date.from); // Normalize start date
+      const endDate = startOfDay(date.to || date.from); // Normalize end date
 
-    return data.filter((report) => {
-      const reportDate = startOfDay(new Date(report.createdAt)); // Normalize report date
-
-      const isWithinRange = isWithinInterval(reportDate, {
-        start: startDate,
-        end: endDate,
+      filtered = filtered.filter((report) => {
+        const reportDate = startOfDay(new Date(report.createdAt)); // Normalize report date
+        return isWithinInterval(reportDate, { start: startDate, end: endDate });
       });
+    }
 
-      return isWithinRange;
-    });
-  }, [data, date]);
+    // Apply report type filter
+    if (reportTypeFilter === "international") {
+      filtered = filtered.filter((report) => report.country !== "Philippines");
+    } else if (reportTypeFilter === "local") {
+      filtered = filtered.filter((report) => report.country === "Philippines");
+    }
+
+    return filtered;
+  }, [data, date, reportTypeFilter]);
 
   useEffect(() => {
     if (globalFilter) {
@@ -463,51 +472,58 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
     setColumnFilters([]); // Reset column filters state
     setSelectedCountry(null); // Reset country filter
     setDate({ from: undefined, to: undefined }); // Reset date range
+    setReportTypeFilter("all"); // Reset report type filter
   };
 
   return (
     <div className="w-full ">
       {/* Search & Filter */}
-      <div className="flex items-end justify-between py-4 gap-4">
-        {/* Global Filter or Search Function */}
-        <div className="flex items-end space-x-2 w-full">
-          <div className="relative w-full">
-            <Input
-              className="peer pe-9 ps-9"
-              placeholder="Search..."
-              type="text"
-              value={globalFilter ?? ""}
-              onChange={(event) => setGlobalFilter(String(event.target.value))}
-              disabled={!(data.length > 0)}
-            />
-            <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80 peer-disabled:opacity-50">
-              {isLoading ? (
-                <LoaderCircle
-                  className="animate-spin"
-                  size={16}
-                  strokeWidth={2}
-                  role="status"
-                  aria-label="Loading..."
-                />
-              ) : (
-                <Search size={16} strokeWidth={2} aria-hidden="true" />
+      <div className="flex flex-col space-y-4 py-4">
+        {/* Top Row: Date Range and Search Bar */}
+        <div className="flex justify-between space-x-4">
+          {/* Global Search */}
+          <div className="flex flex-col w-1/3">
+            <label htmlFor="global-search" className="text-sm font-medium mr-2">
+              Search:
+            </label>
+            <div className="relative">
+              <Input
+                className="peer pe-9 ps-9"
+                placeholder="Search..."
+                type="text"
+                value={globalFilter ?? ""}
+                onChange={(event) =>
+                  setGlobalFilter(String(event.target.value))
+                }
+                disabled={!(data.length > 0)}
+              />
+              <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80 peer-disabled:opacity-50">
+                {isLoading ? (
+                  <LoaderCircle
+                    className="animate-spin"
+                    size={16}
+                    strokeWidth={2}
+                    role="status"
+                    aria-label="Loading..."
+                  />
+                ) : (
+                  <Search size={16} strokeWidth={2} aria-hidden="true" />
+                )}
+              </div>
+              {globalFilter && (
+                <Button
+                  variant="link"
+                  onClick={() => setGlobalFilter("")}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3"
+                >
+                  <X size={16} />
+                </Button>
               )}
             </div>
-            {globalFilter && (
-              <Button
-                variant="link"
-                onClick={() => setGlobalFilter("")}
-                className="absolute inset-y-0 right-0 flex items-center pr-3"
-              >
-                <X size={16} />
-              </Button>
-            )}
           </div>
-        </div>
 
-        {/* Column Filters */}
-        <div className="flex items-end space-x-2">
-          <div className="flex flex-col">
+          {/* Date Range Filter */}
+          <div className="flex flex-col w-1/4">
             <label htmlFor="date-range" className="text-sm font-medium mr-2">
               Date Range:
             </label>
@@ -517,7 +533,7 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
                   id="date"
                   variant={"outline"}
                   className={cn(
-                    "w-[300px] justify-start text-left font-normal",
+                    "w-full justify-start text-left font-normal",
                     !date && "text-muted-foreground"
                   )}
                   disabled={!(data.length > 0)}
@@ -549,8 +565,38 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
               </PopoverContent>
             </Popover>
           </div>
+        </div>
 
-          <div>
+        {/* Second Row: Report Type, Sub-Team, Country, BLC, WBC Filters */}
+        <div className="flex items-end space-x-4">
+          {/* Report Type Filter */}
+          <div className="flex flex-col flex-1">
+            <label
+              htmlFor="report-type-filter"
+              className="text-sm font-medium mr-2"
+            >
+              Report Type:
+            </label>
+            <Select
+              onValueChange={(value) =>
+                setReportTypeFilter(value as "all" | "international" | "local")
+              }
+              value={reportTypeFilter}
+              disabled={!(data.length > 0)}
+            >
+              <SelectTrigger id="report-type-filter">
+                <SelectValue placeholder="Select..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="international">International</SelectItem>
+                <SelectItem value="local">Local (Philippines)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Sub-Team Filter */}
+          <div className="flex flex-col flex-1">
             <label
               htmlFor="subTeam-filter"
               className="text-sm font-medium mr-2"
@@ -572,7 +618,7 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
               }
               disabled={!(data.length > 0)}
             >
-              <SelectTrigger id="subTeam-filter" className="w-[180px]">
+              <SelectTrigger id="subTeam-filter">
                 <SelectValue placeholder="Select..." />
               </SelectTrigger>
               <SelectContent>
@@ -585,7 +631,8 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
             </Select>
           </div>
 
-          <div className="flex flex-col">
+          {/* Country Filter */}
+          <div className="flex flex-col flex-1">
             <label
               htmlFor="country-filter"
               className="text-sm font-medium mr-2"
@@ -598,7 +645,7 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
                   variant="outline"
                   role="combobox"
                   aria-expanded={openCountry}
-                  className="w-[200px] justify-between"
+                  className="w-full justify-between"
                 >
                   {selectedCountry || "Select..."}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -607,7 +654,6 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
               <PopoverContent className="w-[200px] p-0">
                 <Command>
                   <CommandInput placeholder="Search country..." />
-
                   <CommandList>
                     <CommandEmpty>No countries found.</CommandEmpty>
                     <CommandGroup>
@@ -634,7 +680,8 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
             </Popover>
           </div>
 
-          <div>
+          {/* BLC Filter */}
+          <div className="flex flex-col flex-1">
             <label
               htmlFor="bigLeagueTitle-filter"
               className="text-sm font-medium mr-2"
@@ -659,7 +706,7 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
               }
               disabled={!(data.length > 0)}
             >
-              <SelectTrigger id="bigLeagueTitle-filter" className="w-[180px]">
+              <SelectTrigger id="bigLeagueTitle-filter">
                 <SelectValue placeholder="Select..." />
               </SelectTrigger>
               <SelectContent>
@@ -672,7 +719,8 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
             </Select>
           </div>
 
-          <div>
+          {/* WBC Filter */}
+          <div className="flex flex-col flex-1">
             <label
               htmlFor="wealthBuilderTitle-filter"
               className="text-sm font-medium mr-2"
@@ -697,10 +745,7 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
               }
               disabled={!(data.length > 0)}
             >
-              <SelectTrigger
-                id="wealthBuildersTitle-filter"
-                className="w-[180px]"
-              >
+              <SelectTrigger id="wealthBuilderTitle-filter">
                 <SelectValue placeholder="Select..." />
               </SelectTrigger>
               <SelectContent>
@@ -713,22 +758,25 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
             </Select>
           </div>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                onClick={resetFilters}
-                variant="outline"
-                size="icon"
-                className="p-4"
-                disabled={!(data.length > 0)}
-              >
-                <RotateCcw className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Reset all filters</p>
-            </TooltipContent>
-          </Tooltip>
+          {/* Reset Filters Button */}
+          <div className="flex flex-col">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={resetFilters}
+                  variant="outline"
+                  size="icon"
+                  className="p-4"
+                  disabled={!(data.length > 0)}
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Reset all filters</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
         </div>
       </div>
 

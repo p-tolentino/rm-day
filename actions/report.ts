@@ -40,6 +40,30 @@ export async function createRmdReport(values: z.infer<typeof reportSchema>) {
     fullName,
   } = values;
 
+  const { data: wholesalerData, error: wholesalerError } = await supabase
+    .from("wholesalers")
+    .select("totalWholesale, totalIncome, achievements")
+    .eq("idNum", idNumber)
+    .single();
+
+  if (wholesalerError) {
+    return { success: false, message: wholesalerError.message };
+  }
+
+  const currentWholesale = wholesalerData.totalWholesale || 0;
+  const currentIncome = wholesalerData.totalIncome || 0;
+
+  if (
+    monthlyWholesale < currentWholesale ||
+    parseFloat(monthlyIncome) < currentIncome
+  ) {
+    return {
+      success: false,
+      message:
+        "Wholesale / Income values cannot be less than your current highest values.",
+    };
+  }
+
   const { data: currentUser } = await supabase
     .from("wholesalers")
     .select("firstName, middleName, lastName")
@@ -66,15 +90,25 @@ export async function createRmdReport(values: z.infer<typeof reportSchema>) {
     return { success: false, message: reportError.message };
   }
 
+  const currentAchievements = wholesalerData.achievements || {
+    bigLeagueCircle: [],
+    wealthBuildersCircle: [],
+  };
+
   // Calculate achievements based on the submitted totals
-  const achievements = {
+  const newAchievements = {
     bigLeagueCircle: BLC_TITLES.map(({ title, threshold }) => ({
       title,
-      achieved: monthlyWholesale >= threshold,
+      achieved:
+        currentAchievements.bigLeagueCircle.find((a: any) => a.title === title)
+          ?.achieved || monthlyWholesale >= threshold,
     })),
     wealthBuildersCircle: WBC_TITLES.map(({ title, threshold }) => ({
       title,
-      achieved: parseFloat(monthlyIncome) >= threshold,
+      achieved:
+        currentAchievements.wealthBuildersCircle.find(
+          (a: any) => a.title === title
+        )?.achieved || parseFloat(monthlyIncome) >= threshold,
     })),
   };
 
@@ -84,7 +118,7 @@ export async function createRmdReport(values: z.infer<typeof reportSchema>) {
     .update({
       totalWholesale: monthlyWholesale,
       totalIncome: parseFloat(monthlyIncome),
-      achievements,
+      achievements: newAchievements,
     })
     .eq("idNum", idNumber);
 
