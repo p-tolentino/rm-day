@@ -40,30 +40,18 @@ export function EnhancedDatePicker({
     value || defaultDOB
   );
 
-  const phTimeZoneOffset = 8 * 60; // Philippine time zone offset in minutes (UTC+8)
-
   const handleDateChange = (newDate: Date | undefined) => {
     if (newDate) {
-      // Adjust the date to Philippine time
-      const phDate = new Date(
-        newDate.getTime() +
-          (newDate.getTimezoneOffset() + phTimeZoneOffset) * 60 * 1000
-      );
-      setDate(phDate);
-      setCalendarDate(phDate);
-      onChange(phDate);
+      setDate(newDate);
+      setCalendarDate(newDate);
+      onChange(newDate);
     }
   };
 
   React.useEffect(() => {
     if (value) {
-      // Adjust the value to Philippine time
-      const phDate = new Date(
-        value.getTime() +
-          (value.getTimezoneOffset() + phTimeZoneOffset) * 60 * 1000
-      );
-      setDate(phDate);
-      setCalendarDate(phDate);
+      setDate(value);
+      setCalendarDate(value);
     }
   }, [value]);
 

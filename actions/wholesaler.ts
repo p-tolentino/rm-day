@@ -10,6 +10,13 @@ const cleanText = (text: string | null | undefined): string => {
   return (text || "").trim().toLocaleUpperCase();
 };
 
+const formatDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 export async function registerWholesalerInfo(
   values: z.infer<typeof registerSchema>
 ) {
@@ -51,7 +58,7 @@ export async function registerWholesalerInfo(
   } = values;
 
   const { data, error } = await supabase.from("wholesalers").insert({
-    dob: dob,
+    dob: formatDate(dob),
     email: email.trim().toLocaleLowerCase(),
     idNum: idNum.trim(),
     firstName: cleanText(firstName),
@@ -115,7 +122,7 @@ export async function updateWholesalerInfo(
   const { data, error } = await supabase
     .from("wholesalers")
     .update({
-      dob: dob,
+      dob: formatDate(dob),
       email: email.trim().toLocaleLowerCase(),
       firstName: cleanText(firstName),
       middleName: middleName ? cleanText(middleName) : null,
