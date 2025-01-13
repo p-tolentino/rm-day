@@ -102,9 +102,11 @@ export async function updateWholesalerInfo(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    return { success: false, message: "User is not logged in." };
-  }
+  // if (!user) {
+  //   return { success: false, message: "User is not logged in." };
+  // }
+
+  console.log(values);
 
   const {
     dob,
