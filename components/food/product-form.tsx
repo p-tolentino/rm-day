@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import ComboBoxSelector from "../ui/combo-box-input";
 import { createProduct } from "@/actions/food";
+import { useState } from "react";
 
 export const productSchema = z.object({
   category: z.string(),
@@ -26,25 +27,35 @@ export const productSchema = z.object({
 
 export default function ProductForm({
   categories,
+  onProductSucess,
 }: {
   // TODO: TYPESAFETY
   categories?: any;
+  onProductSucess: () => void;
 }) {
+  const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
   });
 
   async function onSubmit(values: z.infer<typeof productSchema>) {
+    setIsLoading(true);
+
     try {
       const result = await createProduct(values);
       if (result.success) {
         toast.success(result.message);
+        onProductSucess();
+        form.reset();
       } else {
         toast.error(result.message);
       }
     } catch (error) {
       console.error("Form submission error", error);
       toast.error("Failed to submit the form. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -67,6 +78,7 @@ export default function ProductForm({
                   }}
                   itemName="category"
                   items={categories}
+                  disabled={isLoading}
                 />
               </FormControl>
 
@@ -87,6 +99,7 @@ export default function ProductForm({
                   type="text"
                   {...field}
                   value={field.value && field.value.toLocaleUpperCase()}
+                  disabled={isLoading}
                 />
               </FormControl>
 
@@ -109,6 +122,7 @@ export default function ProductForm({
                   onChange={(e) =>
                     form.setValue("points", Number(e.target.value))
                   }
+                  disabled={isLoading}
                 />
               </FormControl>
 
@@ -117,7 +131,9 @@ export default function ProductForm({
           )}
         />
         <div className="flex justify-end">
-          <Button type="submit">Add Product</Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? `Adding Product...` : `Add Product`}
+          </Button>
         </div>
       </form>
     </Form>

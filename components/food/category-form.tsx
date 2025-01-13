@@ -15,27 +15,40 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { createCategory } from "@/actions/food";
+import { useState } from "react";
 
 export const categorySchema = z.object({
   name: z.string(),
 });
 
-export default function CategoryForm() {
+export default function CategoryForm({
+  onCategorySucess,
+}: {
+  onCategorySucess: () => void;
+}) {
+  const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<z.infer<typeof categorySchema>>({
     resolver: zodResolver(categorySchema),
   });
 
   async function onSubmit(values: z.infer<typeof categorySchema>) {
+    setIsLoading(true);
+
     try {
       const result = await createCategory(values);
       if (result.success) {
         toast.success(result.message);
+        onCategorySucess();
+        form.reset();
       } else {
         toast.error(result.message);
       }
     } catch (error) {
       console.error("Form submission error", error);
       toast.error("Failed to submit the form. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -57,6 +70,7 @@ export default function CategoryForm() {
                   type="text"
                   {...field}
                   value={field.value && field.value.toLocaleUpperCase()}
+                  disabled={isLoading}
                 />
               </FormControl>
 
@@ -65,7 +79,9 @@ export default function CategoryForm() {
           )}
         />
         <div className="flex justify-end">
-          <Button type="submit">Add Category</Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? `Adding Category...` : `Add Category`}
+          </Button>
         </div>
       </form>
     </Form>

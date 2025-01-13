@@ -37,6 +37,14 @@ const Header = ({
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [productOpen, setProductOpen] = useState(false);
 
+  const onCategorySucess = async () => {
+    setCategoryOpen(false);
+  };
+
+  const onProductSucess = async () => {
+    setProductOpen(false);
+  };
+
   const isAdmin = role === "ADMIN";
   const isLeader = role === "LEADER";
 
@@ -108,7 +116,7 @@ const Header = ({
 
                 <div>
                   <Separator />
-                  <CategoryForm />
+                  <CategoryForm onCategorySucess={onCategorySucess} />
                 </div>
               </DialogContent>
             </Dialog>
@@ -134,7 +142,10 @@ const Header = ({
 
                 <div>
                   <Separator />
-                  <ProductForm categories={categories} />
+                  <ProductForm
+                    categories={categories}
+                    onProductSucess={onProductSucess}
+                  />
                 </div>
               </DialogContent>
             </Dialog>
