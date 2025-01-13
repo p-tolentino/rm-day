@@ -5,7 +5,6 @@ import * as z from "zod";
 import { registerSchema } from "@/components/auth/register-wholesaler";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import { getCurrentRole } from "@/data/wholesalers";
 
 const cleanText = (text: string | null | undefined): string => {
   return (text || "").trim().toLocaleUpperCase();
@@ -52,7 +51,7 @@ export async function registerWholesalerInfo(
   } = values;
 
   const { data, error } = await supabase.from("wholesalers").insert({
-    dob: new Date(dob),
+    dob: dob,
     email: email.trim().toLocaleLowerCase(),
     idNum: idNum.trim(),
     firstName: cleanText(firstName),
@@ -116,7 +115,7 @@ export async function updateWholesalerInfo(
   const { data, error } = await supabase
     .from("wholesalers")
     .update({
-      dob: new Date(dob),
+      dob: dob,
       email: email.trim().toLocaleLowerCase(),
       firstName: cleanText(firstName),
       middleName: middleName ? cleanText(middleName) : null,

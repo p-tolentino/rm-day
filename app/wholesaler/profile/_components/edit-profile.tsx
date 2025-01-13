@@ -189,16 +189,7 @@ export function EditProfileDialog({
                           value={
                             field.value ? new Date(field.value) : undefined
                           }
-                          onChange={(date) => {
-                            if (date) {
-                              const formattedDate = date
-                                .toISOString()
-                                .split("T")[0];
-                              field.onChange(formattedDate);
-                            } else {
-                              field.onChange("");
-                            }
-                          }}
+                          onChange={(date) => field.onChange(date)}
                           disabled={isLoading}
                         />
                       </FormControl>
