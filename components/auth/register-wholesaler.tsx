@@ -93,10 +93,6 @@ export default function RegisterWholesalerForm({
     },
   });
 
-  const preventExtraSpaces = (value: string) => {
-    return value.replace(/\s+/g, " ").trim();
-  };
-
   const signUp = async (values: z.infer<typeof registerSchema>) => {
     setIsLoading(true);
 
