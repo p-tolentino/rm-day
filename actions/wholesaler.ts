@@ -106,8 +106,6 @@ export async function updateWholesalerInfo(
   //   return { success: false, message: "User is not logged in." };
   // }
 
-  console.log(values);
-
   const {
     dob,
     email,

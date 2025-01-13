@@ -43,10 +43,17 @@ export function EditProfileDialog({
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const convertToPhilippineTime = (date: Date): Date => {
+    const phTimeZoneOffset = 8 * 60; // Philippine time zone offset in minutes (UTC+8)
+    const localOffset = date.getTimezoneOffset(); // User's local time zone offset
+    const totalOffset = (localOffset + phTimeZoneOffset) * 60 * 1000; // Total offset in milliseconds
+    return new Date(date.getTime() + totalOffset);
+  };
+
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      dob: new Date(profile.dob),
+      dob: convertToPhilippineTime(new Date(profile.dob)),
       email: profile.email,
       firstName: profile.firstName,
       idNum: profile.idNum,
@@ -63,7 +70,10 @@ export function EditProfileDialog({
   const onSubmit = async (values: z.infer<typeof registerSchema>) => {
     setIsLoading(true); // Start loading
     try {
-      const result = await updateWholesalerInfo(values);
+      const phDob = convertToPhilippineTime(new Date(values.dob));
+      const updatedValues = { ...values, dob: phDob };
+
+      const result = await updateWholesalerInfo(updatedValues);
       if (result.success) {
         toast.success(result.message);
         setOpen(false); // Close the dialog on success
@@ -186,9 +196,16 @@ export function EditProfileDialog({
                       <FormControl>
                         <EnhancedDatePicker
                           value={
-                            field.value ? new Date(field.value) : undefined
+                            field.value
+                              ? convertToPhilippineTime(new Date(field.value))
+                              : undefined
                           }
-                          onChange={(date) => field.onChange(date)}
+                          onChange={(date) => {
+                            if (date) {
+                              const phDate = convertToPhilippineTime(date);
+                              field.onChange(phDate);
+                            }
+                          }}
                           disabled={isLoading}
                         />
                       </FormControl>
