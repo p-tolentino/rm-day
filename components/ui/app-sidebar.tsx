@@ -214,6 +214,7 @@ export function AppSidebar({
   hasSubmitted: boolean;
 }) {
   const [open, setOpen] = useState(false);
+
   const supabase = createClient();
   const router = useRouter();
 
@@ -230,6 +231,10 @@ export function AppSidebar({
       responses: acceptReports,
     },
   });
+
+  const handleFormSubmitSuccess = () => {
+    setOpen(false);
+  };
 
   const handleLogout = async () => {
     const loadingToast = toast.loading("Logging out...");
@@ -310,6 +315,7 @@ export function AppSidebar({
                       user={user}
                       categories={categories}
                       products={products}
+                      onFormSubmitSuccess={handleFormSubmitSuccess}
                     />
                   </div>
                 </DialogContent>

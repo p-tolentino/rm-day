@@ -54,7 +54,7 @@ export const reportSchema = z.object({
     )
     .optional(),
   ssCMIRUrl: z.string().optional(),
-  mmppSummaryReport: z.number(),
+  mmppSummaryReport: z.string(),
   ssMSR: z
     .custom<File[]>()
     .refine((files) => files?.length === 1, "Image is required")
@@ -79,12 +79,14 @@ const RMDayForm = ({
   user,
   categories,
   products,
+  onFormSubmitSuccess,
 }: {
   userRole: "ADMIN" | "LEADER" | "WHOLESALER";
   acceptReports: boolean;
   user: any;
   categories?: any;
   products?: any;
+  onFormSubmitSuccess: () => void;
 }) => {
   const [open, setOpen] = useState(false);
   const [wholesalerId, setWholesalerId] = useState(user.idNum || "");
@@ -104,7 +106,7 @@ const RMDayForm = ({
           user.middleName && `. `
         }${user.lastName}` || "",
       consolidatedMonthlyIncome: "0",
-      mmppSummaryReport: 0,
+      mmppSummaryReport: "0",
       consolidatedMonthlyFoodIncome: 0,
       monthlyIncome: user.totalIncome?.toString() || 0,
       monthlyWholesale: user.totalWholesale || 0,
@@ -144,6 +146,7 @@ const RMDayForm = ({
 
           if (result.success) {
             toast.success("Report submitted successfully");
+            onFormSubmitSuccess();
             form.reset();
           } else {
             throw new Error(result.message);
@@ -403,13 +406,9 @@ const RMDayForm = ({
                       placeholder="50,000"
                       type="number"
                       {...field}
+                      min={0}
+                      step={0.01}
                       disabled={!isValidWholesaler}
-                      onChange={(e) =>
-                        form.setValue(
-                          "mmppSummaryReport",
-                          Number(e.target.value)
-                        )
-                      }
                     />
                   </FormControl>
                   <FormMessage />

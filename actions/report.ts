@@ -82,13 +82,14 @@ export async function createRmdReport(values: z.infer<typeof reportSchema>) {
       income: parseFloat(monthlyIncome),
       cmir: parseFloat(consolidatedMonthlyIncome),
       ssCMIR: ssCMIRUrl,
-      msr: mmppSummaryReport,
+      msr: parseFloat(mmppSummaryReport),
       ssMSR: ssMSRUrl,
       food: consolidatedMonthlyFoodIncome,
       agree,
     });
 
   if (reportError) {
+    console.log(reportError);
     return { success: false, message: reportError.message };
   }
 
