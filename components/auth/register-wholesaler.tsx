@@ -35,6 +35,7 @@ import {
 } from "@/actions/wholesaler";
 import { uploadAvatar } from "@/actions/upload";
 import { subTeams } from "@/utils/subteams";
+import { convertToPhilippineTime } from "@/app/wholesaler/profile/_components/edit-profile";
 
 const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -88,7 +89,7 @@ export default function RegisterWholesalerForm({
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      dob: subYears(new Date(), 18),
+      dob: convertToPhilippineTime(subYears(new Date(), 18)),
     },
   });
 
@@ -125,7 +126,10 @@ export default function RegisterWholesalerForm({
     setIsLoading(true);
 
     try {
-      const wholesalerResponse = await registerWholesalerInfo(values);
+      const phDob = convertToPhilippineTime(new Date(values.dob));
+      const updatedValues = { ...values, dob: phDob };
+
+      const wholesalerResponse = await registerWholesalerInfo(updatedValues);
 
       if (!wholesalerResponse.success) {
         toast.warning("Failed to register wholesaler");
@@ -378,8 +382,18 @@ export default function RegisterWholesalerForm({
                         <FormLabel>Date of Birth</FormLabel>
                         <FormControl>
                           <EnhancedDatePicker
-                            value={field.value}
-                            onChange={(date) => field.onChange(date)}
+                            value={
+                              field.value
+                                ? convertToPhilippineTime(new Date(field.value))
+                                : undefined
+                            }
+                            onChange={(date) => {
+                              if (date) {
+                                // Convert the selected date to Philippine Time
+                                const phDate = convertToPhilippineTime(date);
+                                field.onChange(phDate);
+                              }
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -433,8 +447,8 @@ export default function RegisterWholesalerForm({
                   <FormItem>
                     <FormLabel>Email Address:</FormLabel>
                     <FormControl>
-                      <WhitespaceHandledInput
-                        field={field}
+                      <Input
+                        {...field}
                         placeholder="juan.delacruz@example.com"
                         type="email"
                       />

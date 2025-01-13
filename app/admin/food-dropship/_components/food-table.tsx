@@ -63,7 +63,7 @@ export type Food = {
   id: string;
   idNumber: string;
   category: string;
-  itemName: string;
+  name: string;
   points: number;
   createdAt: string;
 };
@@ -81,6 +81,11 @@ const columns: ColumnDef<Food>[] = [
   {
     accessorKey: "category",
     header: "Category",
+    cell: ({ row }) => (
+      <div className="min-w-[max-content] pe-4 whitespace-nowrap">
+        {row.original.category.toLocaleUpperCase()}
+      </div>
+    ),
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
@@ -88,6 +93,11 @@ const columns: ColumnDef<Food>[] = [
   {
     accessorKey: "name",
     header: "Item Name",
+    cell: ({ row }) => (
+      <div className="min-w-[max-content] pe-4 whitespace-nowrap">
+        {row.original.name.toLocaleUpperCase()}
+      </div>
+    ),
   },
   {
     accessorKey: "points",

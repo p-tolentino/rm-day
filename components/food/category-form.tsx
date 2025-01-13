@@ -52,7 +52,12 @@ export default function CategoryForm() {
             <FormItem>
               <FormLabel>Category Name</FormLabel>
               <FormControl>
-                <Input placeholder="Category" type="text" {...field} />
+                <Input
+                  placeholder="Category"
+                  type="text"
+                  {...field}
+                  value={field.value && field.value.toLocaleUpperCase()}
+                />
               </FormControl>
 
               <FormMessage />

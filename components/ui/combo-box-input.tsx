@@ -52,7 +52,7 @@ export default function ComboBoxSelector({
             role="combobox"
             aria-expanded={open}
             disabled={disabled}
-            className="w-full justify-between"
+            className="w-full justify-between truncate"
           >
             {value
               ? items.find((item) => item === value)
@@ -60,7 +60,7 @@ export default function ComboBoxSelector({
             <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-0">
+        <PopoverContent className="p-0 text-nowrap w-full">
           <Command>
             <CommandInput placeholder={`Search ${itemName}...`} />
             <CommandList>

@@ -36,19 +36,19 @@ interface EditProfileDialogProps {
   wholesalers: any[];
 }
 
+export const convertToPhilippineTime = (date: Date): Date => {
+  const phTimeZoneOffset = 8 * 60; // Philippine time zone offset in minutes (UTC+8)
+  const localOffset = date.getTimezoneOffset(); // User's local time zone offset
+  const totalOffset = (localOffset + phTimeZoneOffset) * 60 * 1000; // Total offset in milliseconds
+  return new Date(date.getTime() + totalOffset);
+};
+
 export function EditProfileDialog({
   profile,
   wholesalers,
 }: EditProfileDialogProps) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  const convertToPhilippineTime = (date: Date): Date => {
-    const phTimeZoneOffset = 8 * 60; // Philippine time zone offset in minutes (UTC+8)
-    const localOffset = date.getTimezoneOffset(); // User's local time zone offset
-    const totalOffset = (localOffset + phTimeZoneOffset) * 60 * 1000; // Total offset in milliseconds
-    return new Date(date.getTime() + totalOffset);
-  };
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -202,6 +202,7 @@ export function EditProfileDialog({
                           }
                           onChange={(date) => {
                             if (date) {
+                              // Convert the selected date to Philippine Time
                               const phDate = convertToPhilippineTime(date);
                               field.onChange(phDate);
                             }

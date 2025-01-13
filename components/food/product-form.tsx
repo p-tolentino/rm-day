@@ -82,7 +82,12 @@ export default function ProductForm({
             <FormItem>
               <FormLabel>Item Name</FormLabel>
               <FormControl>
-                <Input placeholder="Name" type="text" {...field} />
+                <Input
+                  placeholder="Name"
+                  type="text"
+                  {...field}
+                  value={field.value && field.value.toLocaleUpperCase()}
+                />
               </FormControl>
 
               <FormMessage />
