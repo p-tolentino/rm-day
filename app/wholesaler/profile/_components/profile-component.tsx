@@ -99,7 +99,13 @@ export const SUBTEAM_IMAGES: Record<SubteamTitle, string> = {
 };
 
 // TODO: TYPE SAFETY FOR USER DATATYPE
-export default function ProfilePage({ profile }: { profile: any }) {
+export default function ProfilePage({
+  profile,
+  wholesalers,
+}: {
+  profile: any;
+  wholesalers: any[];
+}) {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="grid gap-8 md:grid-cols-2">
@@ -145,7 +151,10 @@ export default function ProfilePage({ profile }: { profile: any }) {
             <CardHeader>
               <CardTitle className="flex justify-between items-center">
                 Personal Information
-                <EditProfileDialog profile={profile} />
+                <EditProfileDialog
+                  profile={profile}
+                  wholesalers={wholesalers}
+                />
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -157,15 +166,15 @@ export default function ProfilePage({ profile }: { profile: any }) {
                 <div>
                   <Label className="text-gray-400">COMPLETE NAME</Label>
                   <p className="text-sm">
-                    {`${profile.firstName} ${profile.middleName[0]}${
-                      profile.middleName && `.`
-                    } ${profile.lastName}`}
+                    {`${profile.firstName} ${
+                      profile.middleName && profile.middleName[0]
+                    }${profile.middleName && `.`} ${profile.lastName}`}
                   </p>
                 </div>
                 <div>
                   <Label className="text-gray-400">BIRTHDATE</Label>
                   <p className="text-sm">
-                    {new Date(profile.dob).toLocaleDateString()}
+                    {new Date(profile.dob).toLocaleDateString("en-PH")}
                   </p>
                 </div>
                 <div>

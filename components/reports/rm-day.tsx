@@ -104,6 +104,8 @@ const RMDayForm = ({
           user.lastName
         }` || "",
       consolidatedMonthlyFoodIncome: 0,
+      monthlyIncome: user.totalIncome || 0,
+      monthlyWholesale: user.totalWholesale || 0,
     },
   });
 

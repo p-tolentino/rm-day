@@ -21,7 +21,9 @@ export default async function WholesalerData() {
   const role = await getCurrentRole();
 
   const formattedWholesalers = wholesalers.map((wholesaler) => {
-    return `${wholesaler.firstName} ${wholesaler.middleName[0]}. ${wholesaler.lastName}`;
+    return `${wholesaler.firstName} ${
+      wholesaler.middleName && wholesaler.middleName[0]
+    }${wholesaler.middleName && `.`} ${wholesaler.lastName}`;
   });
 
   return (

@@ -7,6 +7,10 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { getCurrentRole } from "@/data/wholesalers";
 
+const cleanText = (text: string | null | undefined): string => {
+  return (text || "").trim().toLocaleUpperCase();
+};
+
 export async function registerWholesalerInfo(
   values: z.infer<typeof registerSchema>
 ) {
@@ -49,18 +53,24 @@ export async function registerWholesalerInfo(
 
   const { data, error } = await supabase.from("wholesalers").insert({
     dob: new Date(dob),
-    email: email.toLocaleLowerCase(),
-    idNum,
-    firstName: firstName.toLocaleUpperCase(),
-    middleName: middleName?.toLocaleUpperCase(),
-    lastName: lastName.toLocaleUpperCase(),
+    email: email.trim().toLocaleLowerCase(),
+    idNum: idNum.trim(),
+    firstName: cleanText(firstName),
+    middleName: middleName ? cleanText(middleName) : null,
+    lastName: cleanText(lastName),
     country: location[0],
     city: location[1],
-    profession: profession.toLocaleUpperCase(),
+    profession: cleanText(profession),
     sponsor,
     subTeam,
     avatar,
-    createdBy: `${currentUser?.firstName} ${currentUser?.middleName[0]}. ${currentUser?.lastName}`,
+    createdBy: currentUser
+      ? `${cleanText(currentUser.firstName)} ${
+          cleanText(currentUser.middleName)?.[0] || ""
+        }.${currentUser.middleName?.[0] ? " " : ""}${cleanText(
+          currentUser.lastName
+        )}`
+      : null,
   });
 
   if (error) {
@@ -107,13 +117,13 @@ export async function updateWholesalerInfo(
     .from("wholesalers")
     .update({
       dob: new Date(dob),
-      email: email.toLocaleLowerCase(),
-      firstName: firstName.toLocaleUpperCase(),
-      middleName: middleName?.toLocaleUpperCase(),
-      lastName: lastName.toLocaleUpperCase(),
+      email: email.trim().toLocaleLowerCase(),
+      firstName: cleanText(firstName),
+      middleName: middleName ? cleanText(middleName) : null,
+      lastName: cleanText(lastName),
       country: location[0],
       city: location[1],
-      profession: profession.toLocaleUpperCase(),
+      profession: cleanText(profession),
       sponsor,
       subTeam,
       avatar,

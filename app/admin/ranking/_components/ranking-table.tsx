@@ -97,6 +97,7 @@ export type UserLocation = {
 export type Report = {
   id: string;
   createdAt: string;
+  rank: number;
   subTeam: string;
   fullName: string;
   wholesalerId: string;
@@ -400,6 +401,45 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
     return filtered;
   }, [data, date, reportTypeFilter]);
 
+  const sortedData = useMemo(() => {
+    let sorted = [...filteredData];
+
+    if (sorting.length > 0) {
+      const { id, desc } = sorting[0];
+
+      sorted.sort((a, b) => {
+        const aValue = a[id as keyof Report];
+        const bValue = b[id as keyof Report];
+
+        if (aValue < bValue) return desc ? 1 : -1;
+        if (aValue > bValue) return desc ? -1 : 1;
+        return 0;
+      });
+    }
+
+    return sorted;
+  }, [filteredData, sorting]);
+
+  const rankedData = useMemo(() => {
+    const ranked = [];
+    let currentRank = 1;
+
+    for (let i = 0; i < sortedData.length; i++) {
+      // If this is not the first row and the current value is different from the previous value, increment the rank
+      if (
+        i > 0 &&
+        sortedData[i][sorting[0]?.id as keyof Report] !==
+          sortedData[i - 1][sorting[0]?.id as keyof Report]
+      ) {
+        currentRank++;
+      }
+
+      ranked.push({ ...sortedData[i], rank: currentRank });
+    }
+
+    return ranked;
+  }, [sortedData, sorting]);
+
   useEffect(() => {
     if (globalFilter) {
       setIsLoading(true);
@@ -445,7 +485,7 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
   };
 
   const table = useReactTable({
-    data: filteredData,
+    data: rankedData,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -816,15 +856,15 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
                     <div
                       className={cn(
                         "flex justify-center items-center h-10 rounded-lg",
-                        rowIndex + 1 === 1 &&
+                        row.original.rank === 1 &&
                           "bg-gradient-to-b from-yellow-400 to-yellow-600 text-white font-bold shadow-lg", // Gold
-                        rowIndex + 1 === 2 &&
+                        row.original.rank === 2 &&
                           "bg-gradient-to-b from-gray-400 to-gray-600 text-white font-bold shadow-md", // Silver
-                        rowIndex + 1 === 3 &&
+                        row.original.rank === 3 &&
                           "bg-gradient-to-b from-amber-600 to-amber-800 text-white font-bold shadow-sm" // Bronze
                       )}
                     >
-                      {rowIndex + 1}
+                      {row.original.rank}
                     </div>
                   </TableCell>
                   {row.getVisibleCells().map((cell) => (

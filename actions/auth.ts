@@ -29,10 +29,18 @@ export async function login(idNum: string, password: string) {
   if (loginError && loginError?.code === `invalid_credentials`) {
     const { error: signUpError } = await supabase.auth.signUp(data);
 
-    if (signUpError && signUpError?.code === `user_already_exists`) {
+    if (signUpError) {
+      console.log(email);
+      if (signUpError?.code === `user_already_exists`) {
+        return {
+          success: false,
+          message: loginError?.message || signUpError?.message,
+        };
+      }
+
       return {
         success: false,
-        message: loginError?.message || signUpError?.message,
+        message: "Something went wrong",
       };
     }
 

@@ -65,6 +65,7 @@ import { createClient } from "@/utils/supabase/client";
 import { updateDeadline } from "@/actions/deadline";
 import RMDayForm from "../reports/rm-day";
 import ChangePasswordDialog from "../auth/change-password";
+import { useRouter } from "next/navigation";
 
 const adminLinks = {
   navMain: [
@@ -214,6 +215,7 @@ export function AppSidebar({
 }) {
   const [open, setOpen] = useState(false);
   const supabase = createClient();
+  const router = useRouter();
 
   const linksToUse =
     userRole === "ADMIN"
@@ -233,7 +235,10 @@ export function AppSidebar({
     const loadingToast = toast.loading("Logging out...");
     try {
       await supabase.auth.signOut();
-      setTimeout(() => toast.dismiss(loadingToast), 500);
+      setTimeout(() => {
+        toast.dismiss(loadingToast);
+        router.replace(`/`);
+      }, 500);
     } catch (error) {
       toast.dismiss(loadingToast);
       toast.error("Failed to log out");

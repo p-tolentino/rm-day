@@ -29,12 +29,17 @@ import { updateWholesalerInfo } from "@/actions/wholesaler";
 import { toast } from "sonner";
 import { EnhancedDatePicker } from "@/components/ui/enhanced-date-picker";
 import LocationSelector from "@/components/ui/location-input";
+import ComboBoxSelector from "@/components/ui/combo-box-input";
 
 interface EditProfileDialogProps {
   profile: any;
+  wholesalers: any[];
 }
 
-export function EditProfileDialog({ profile }: EditProfileDialogProps) {
+export function EditProfileDialog({
+  profile,
+  wholesalers,
+}: EditProfileDialogProps) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -87,106 +92,143 @@ export function EditProfileDialog({ profile }: EditProfileDialogProps) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Name Fields in One Line */}
-            <div className="flex gap-4">
-              <FormField
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>First Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        value={field.value?.toLocaleUpperCase()}
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="middleName"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Middle Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        value={field.value?.toLocaleUpperCase()}
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Last Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        value={field.value?.toLocaleUpperCase()}
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            {/* Full Name */}
+            <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-4">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          value={field.value?.toLocaleUpperCase()}
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="col-span-4">
+                <FormField
+                  control={form.control}
+                  name="middleName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Middle Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          value={field.value?.toLocaleUpperCase()}
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="col-span-4">
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          value={field.value?.toLocaleUpperCase()}
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
-            {/* Date of Birth and Profession in One Line */}
-            <div className="flex gap-4">
-              <FormField
-                control={form.control}
-                name="profession"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Profession</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        value={field.value?.toLocaleUpperCase()}
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="dob"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Date of Birth</FormLabel>
-                    <FormControl>
-                      <EnhancedDatePicker
-                        value={field.value ? new Date(field.value) : undefined}
-                        onChange={(date) => {
-                          if (date) {
-                            const formattedDate = date
-                              .toISOString()
-                              .split("T")[0];
-                            field.onChange(formattedDate);
-                          } else {
-                            field.onChange("");
+            {/* Profession, Date of Birth, Sponsor */}
+            <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-4">
+                <FormField
+                  control={form.control}
+                  name="profession"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Profession</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          value={field.value?.toLocaleUpperCase()}
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="col-span-4">
+                <FormField
+                  control={form.control}
+                  name="dob"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date of Birth</FormLabel>
+                      <FormControl>
+                        <EnhancedDatePicker
+                          value={
+                            field.value ? new Date(field.value) : undefined
                           }
-                        }}
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                          onChange={(date) => {
+                            if (date) {
+                              const formattedDate = date
+                                .toISOString()
+                                .split("T")[0];
+                              field.onChange(formattedDate);
+                            } else {
+                              field.onChange("");
+                            }
+                          }}
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="col-span-4">
+                <FormField
+                  control={form.control}
+                  name="sponsor"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sponsor</FormLabel>
+                      <FormControl>
+                        <ComboBoxSelector
+                          onChange={(value) => {
+                            field.onChange(value);
+                          }}
+                          itemName="sponsor"
+                          items={wholesalers}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
             {/* Location Input at the Bottom */}

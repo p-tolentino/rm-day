@@ -92,6 +92,35 @@ export default function RegisterWholesalerForm({
     },
   });
 
+  const preventExtraSpaces = (value: string) => {
+    return value.replace(/\s+/g, " ").trim();
+  };
+
+  const WhitespaceHandledInput = ({
+    field,
+    placeholder,
+    type = "text",
+  }: {
+    field: any;
+    placeholder: string;
+    type?: string;
+  }) => (
+    <Input
+      {...field}
+      type={type}
+      placeholder={placeholder}
+      value={field.value?.toLocaleUpperCase()}
+      onChange={(e) => {
+        const cleaned = preventExtraSpaces(e.target.value);
+        field.onChange(cleaned);
+      }}
+      onBlur={(e) => {
+        const trimmed = e.target.value.trim();
+        field.onChange(trimmed);
+      }}
+    />
+  );
+
   const signUp = async (values: z.infer<typeof registerSchema>) => {
     setIsLoading(true);
 
@@ -202,7 +231,10 @@ export default function RegisterWholesalerForm({
                       <FormItem>
                         <FormLabel>ID Number</FormLabel>
                         <FormControl>
-                          <Input placeholder="123456789" type="" {...field} />
+                          <WhitespaceHandledInput
+                            field={field}
+                            placeholder="123456789"
+                          />
                         </FormControl>
 
                         <FormMessage />
@@ -266,11 +298,9 @@ export default function RegisterWholesalerForm({
                       <FormItem>
                         <FormLabel>First Name</FormLabel>
                         <FormControl>
-                          <Input
+                          <WhitespaceHandledInput
+                            field={field}
                             placeholder="First"
-                            type="text"
-                            {...field}
-                            value={field.value?.toLocaleUpperCase()}
                           />
                         </FormControl>
                         <FormMessage />
@@ -287,11 +317,9 @@ export default function RegisterWholesalerForm({
                       <FormItem>
                         <FormLabel>Middle Name</FormLabel>
                         <FormControl>
-                          <Input
+                          <WhitespaceHandledInput
+                            field={field}
                             placeholder="Middle"
-                            type="text"
-                            {...field}
-                            value={field.value?.toLocaleUpperCase()}
                           />
                         </FormControl>
                         <FormMessage />
@@ -308,11 +336,9 @@ export default function RegisterWholesalerForm({
                       <FormItem>
                         <FormLabel>Last Name</FormLabel>
                         <FormControl>
-                          <Input
+                          <WhitespaceHandledInput
+                            field={field}
                             placeholder="Last"
-                            type="text"
-                            {...field}
-                            value={field.value?.toLocaleUpperCase()}
                           />
                         </FormControl>
                         <FormMessage />
@@ -332,10 +358,9 @@ export default function RegisterWholesalerForm({
                       <FormItem className="flex flex-col gap-2">
                         <FormLabel>Profession</FormLabel>
                         <FormControl>
-                          <Input
+                          <WhitespaceHandledInput
+                            field={field}
                             placeholder="Profession"
-                            {...field}
-                            value={field.value?.toLocaleUpperCase()}
                           />
                         </FormControl>
                         <FormMessage />
@@ -408,10 +433,10 @@ export default function RegisterWholesalerForm({
                   <FormItem>
                     <FormLabel>Email Address:</FormLabel>
                     <FormControl>
-                      <Input
+                      <WhitespaceHandledInput
+                        field={field}
                         placeholder="juan.delacruz@example.com"
-                        type="text"
-                        {...field}
+                        type="email"
                       />
                     </FormControl>
                     <FormMessage />

@@ -167,7 +167,7 @@ const createColumns = (
     accessorKey: "dob",
     header: "Birth Date",
     cell: ({ row }) => (
-      <div>{new Date(row.getValue("dob")).toLocaleDateString()}</div>
+      <div>{new Date(row.getValue("dob")).toLocaleDateString("en-PH")}</div>
     ),
   },
   {
