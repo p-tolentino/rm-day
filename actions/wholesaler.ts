@@ -80,6 +80,7 @@ export async function registerWholesalerInfo(
   });
 
   if (error) {
+    console.log(error);
     return { success: false, message: error.message, data };
   }
 
@@ -137,6 +138,7 @@ export async function updateWholesalerInfo(
     .eq("idNum", idNum);
 
   if (error) {
+    console.log(error);
     return { success: false, message: error.message };
   }
 

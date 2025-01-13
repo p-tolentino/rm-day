@@ -46,7 +46,7 @@ export function EditProfileDialog({
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      dob: profile.dob,
+      dob: new Date(profile.dob),
       email: profile.email,
       firstName: profile.firstName,
       idNum: profile.idNum,
@@ -61,7 +61,6 @@ export function EditProfileDialog({
   });
 
   const onSubmit = async (values: z.infer<typeof registerSchema>) => {
-    console.log(values);
     setIsLoading(true); // Start loading
     try {
       const result = await updateWholesalerInfo(values);

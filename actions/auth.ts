@@ -30,7 +30,6 @@ export async function login(idNum: string, password: string) {
     const { error: signUpError } = await supabase.auth.signUp(data);
 
     if (signUpError) {
-      console.log(email);
       if (signUpError?.code === `user_already_exists`) {
         return {
           success: false,
