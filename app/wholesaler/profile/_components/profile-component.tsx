@@ -118,6 +118,7 @@ export default function ProfilePage({
                   alt="Profile Picture"
                   fill
                   className="object-cover rounded-lg"
+                  priority
                 />
               ) : (
                 <Skeleton className="w-auto h-full rounded-md opacity-10" />
@@ -140,6 +141,7 @@ export default function ProfilePage({
                   alt="Subteam Logo"
                   fill
                   className="object-contain rounded-xl"
+                  priority
                 />
               ) : (
                 <Skeleton className="w-auto h-full rounded-md opacity-10" />
