@@ -101,8 +101,8 @@ const RMDayForm = ({
       idNumber: user.idNum || "",
       fullName:
         `${user.firstName} ${user.middleName && user.middleName[0]}${
-          user.middleName && `.`
-        } ${user.lastName}` || "",
+          user.middleName && `. `
+        }${user.lastName}` || "",
       consolidatedMonthlyFoodIncome: 0,
       monthlyIncome: user.totalIncome || 0,
       monthlyWholesale: user.totalWholesale || 0,

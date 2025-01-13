@@ -27,7 +27,7 @@ export default async function UserProfile() {
     if (profile.idNum !== wholesaler.idNum)
       return `${wholesaler.firstName} ${
         wholesaler.middleName && wholesaler.middleName[0]
-      }${wholesaler.middleName && `.`} ${wholesaler.lastName}`;
+      }${wholesaler.middleName && `. `}${wholesaler.lastName}`;
   });
 
   return (

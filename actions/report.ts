@@ -75,7 +75,7 @@ export async function createRmdReport(values: z.infer<typeof reportSchema>) {
     .insert({
       createdBy: `${currentUser?.firstName} ${
         currentUser?.middleName && currentUser?.middleName[0]
-      }${currentUser?.middleName && `.`} ${currentUser?.lastName}`,
+      }${currentUser?.middleName && `. `}${currentUser?.lastName}`,
       wholesalerId: idNumber,
       fullName,
       wholesale: monthlyWholesale,

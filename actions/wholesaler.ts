@@ -60,7 +60,7 @@ export async function registerWholesalerInfo(
   const { data, error } = await supabase.from("wholesalers").insert({
     dob: formatDate(dob),
     email: email.trim().toLocaleLowerCase(),
-    idNum: idNum.trim(),
+    idNum: cleanText(idNum),
     firstName: cleanText(firstName),
     middleName: middleName ? cleanText(middleName) : null,
     lastName: cleanText(lastName),
@@ -71,11 +71,9 @@ export async function registerWholesalerInfo(
     subTeam,
     avatar,
     createdBy: currentUser
-      ? `${cleanText(currentUser.firstName)} ${
-          cleanText(currentUser.middleName)?.[0] || ""
-        }.${currentUser.middleName?.[0] ? " " : ""}${cleanText(
-          currentUser.lastName
-        )}`
+      ? `${currentUser.firstName} ${
+          currentUser.middleName && currentUser.middleName[0]
+        }${currentUser.middleName && `. `}${currentUser.lastName}`
       : null,
   });
 

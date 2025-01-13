@@ -168,7 +168,7 @@ export default function ProfilePage({
                   <p className="text-sm">
                     {`${profile.firstName} ${
                       profile.middleName && profile.middleName[0]
-                    }${profile.middleName && `.`} ${profile.lastName}`}
+                    }${profile.middleName && `. `}${profile.lastName}`}
                   </p>
                 </div>
                 <div>

@@ -235,9 +235,10 @@ export default function RegisterWholesalerForm({
                       <FormItem>
                         <FormLabel>ID Number</FormLabel>
                         <FormControl>
-                          <WhitespaceHandledInput
-                            field={field}
-                            placeholder="123456789"
+                          <Input
+                            {...field}
+                            placeholder="Wholesaler ID"
+                            value={field.value?.toLocaleUpperCase()}
                           />
                         </FormControl>
 
@@ -302,9 +303,10 @@ export default function RegisterWholesalerForm({
                       <FormItem>
                         <FormLabel>First Name</FormLabel>
                         <FormControl>
-                          <WhitespaceHandledInput
-                            field={field}
+                          <Input
+                            {...field}
                             placeholder="First"
+                            value={field.value?.toLocaleUpperCase()}
                           />
                         </FormControl>
                         <FormMessage />
@@ -321,9 +323,10 @@ export default function RegisterWholesalerForm({
                       <FormItem>
                         <FormLabel>Middle Name</FormLabel>
                         <FormControl>
-                          <WhitespaceHandledInput
-                            field={field}
+                          <Input
+                            {...field}
                             placeholder="Middle"
+                            value={field.value?.toLocaleUpperCase()}
                           />
                         </FormControl>
                         <FormMessage />
@@ -340,9 +343,10 @@ export default function RegisterWholesalerForm({
                       <FormItem>
                         <FormLabel>Last Name</FormLabel>
                         <FormControl>
-                          <WhitespaceHandledInput
-                            field={field}
+                          <Input
+                            {...field}
                             placeholder="Last"
+                            value={field.value?.toLocaleUpperCase()}
                           />
                         </FormControl>
                         <FormMessage />
@@ -362,9 +366,10 @@ export default function RegisterWholesalerForm({
                       <FormItem className="flex flex-col gap-2">
                         <FormLabel>Profession</FormLabel>
                         <FormControl>
-                          <WhitespaceHandledInput
-                            field={field}
+                          <Input
+                            {...field}
                             placeholder="Profession"
+                            value={field.value?.toLocaleUpperCase()}
                           />
                         </FormControl>
                         <FormMessage />
@@ -451,6 +456,7 @@ export default function RegisterWholesalerForm({
                         {...field}
                         placeholder="juan.delacruz@example.com"
                         type="email"
+                        value={field.value?.toLocaleUpperCase()}
                       />
                     </FormControl>
                     <FormMessage />
