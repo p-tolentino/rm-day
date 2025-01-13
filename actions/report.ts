@@ -73,7 +73,9 @@ export async function createRmdReport(values: z.infer<typeof reportSchema>) {
   const { data: reportData, error: reportError } = await supabase
     .from("reports")
     .insert({
-      createdBy: `${currentUser?.firstName} ${currentUser?.middleName[0]}. ${currentUser?.lastName}`,
+      createdBy: `${currentUser?.firstName} ${
+        currentUser?.middleName && currentUser?.middleName[0]
+      }${currentUser?.middleName && `.`} ${currentUser?.lastName}`,
       wholesalerId: idNumber,
       fullName,
       wholesale: monthlyWholesale,
