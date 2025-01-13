@@ -159,7 +159,7 @@ const createColumns = (
     header: "Role",
     cell: ({ row }) => {
       const user = row.original;
-      return <RoleToggle userId={user.id} initialRole={user.role} />;
+      return <RoleToggle userId={user.idNum} initialRole={user.role} />;
     },
   },
   {
