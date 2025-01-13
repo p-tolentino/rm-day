@@ -97,31 +97,6 @@ export default function RegisterWholesalerForm({
     return value.replace(/\s+/g, " ").trim();
   };
 
-  const WhitespaceHandledInput = ({
-    field,
-    placeholder,
-    type = "text",
-  }: {
-    field: any;
-    placeholder: string;
-    type?: string;
-  }) => (
-    <Input
-      {...field}
-      type={type}
-      placeholder={placeholder}
-      value={field.value?.toLocaleUpperCase()}
-      onChange={(e) => {
-        const cleaned = preventExtraSpaces(e.target.value);
-        field.onChange(cleaned);
-      }}
-      onBlur={(e) => {
-        const trimmed = e.target.value.trim();
-        field.onChange(trimmed);
-      }}
-    />
-  );
-
   const signUp = async (values: z.infer<typeof registerSchema>) => {
     setIsLoading(true);
 
