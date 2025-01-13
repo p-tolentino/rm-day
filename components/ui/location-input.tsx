@@ -34,6 +34,14 @@ interface LocationSelectorProps {
   onCityChange: (city: string | null) => void;
 }
 
+export const formatCamelCase = (input: string): string => {
+  return input
+    .trim() // Remove leading/trailing whitespaces
+    .split(" ") // Split into words
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize each word
+    .join(" "); // Join with spaces
+};
+
 export default function LocationSelector({
   disabled,
   onCountryChange,
@@ -107,14 +115,6 @@ export default function LocationSelector({
       city.name.toLowerCase().includes(citySearch.toLowerCase())
     );
   }, [cities, citySearch, selectedCountry, selectedState, hasStates]);
-
-  const formatCamelCase = (input: string): string => {
-    return input
-      .trim() // Remove leading/trailing whitespaces
-      .split(" ") // Split into words
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize each word
-      .join(" "); // Join with spaces
-  };
 
   const handleCountrySelect = useCallback(
     (country: ICountry | null) => {

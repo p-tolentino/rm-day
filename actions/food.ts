@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { getCurrentRole } from "@/data/wholesalers";
 import { categorySchema } from "@/components/food/category-form";
 import { productSchema } from "@/components/food/product-form";
+import { formatCamelCase } from "@/components/ui/location-input";
 
 export async function createCategory(values: z.infer<typeof categorySchema>) {
   const supabase = await createClient();
@@ -63,7 +64,7 @@ export async function createProduct(values: z.infer<typeof productSchema>) {
 
   const { data, error } = await supabase.from("products").insert({
     category,
-    name: name.toLocaleUpperCase(),
+    name: formatCamelCase(name),
     points,
   });
 
