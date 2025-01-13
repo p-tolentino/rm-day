@@ -103,8 +103,10 @@ const RMDayForm = ({
         `${user.firstName} ${user.middleName && user.middleName[0]}${
           user.middleName && `. `
         }${user.lastName}` || "",
+      consolidatedMonthlyIncome: "0",
+      mmppSummaryReport: 0,
       consolidatedMonthlyFoodIncome: 0,
-      monthlyIncome: user.totalIncome || 0,
+      monthlyIncome: user.totalIncome?.toString() || 0,
       monthlyWholesale: user.totalWholesale || 0,
     },
   });
@@ -377,6 +379,7 @@ const RMDayForm = ({
                           });
                         }
                       }}
+                      required
                       disabled={!isValidWholesaler}
                     />
                   </FormControl>
@@ -436,6 +439,7 @@ const RMDayForm = ({
                           });
                         }
                       }}
+                      required
                       disabled={!isValidWholesaler}
                     />
                   </FormControl>
