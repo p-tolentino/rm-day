@@ -262,7 +262,7 @@ export function OverallRankingDataTable({
   }, [data, reportTypeFilter]);
 
   const sortedData = useMemo(() => {
-    let sorted = [...filteredData];
+    const sorted = [...filteredData];
 
     if (sorting.length > 0) {
       const { id, desc } = sorting[0];

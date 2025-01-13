@@ -402,7 +402,7 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
   }, [data, date, reportTypeFilter]);
 
   const sortedData = useMemo(() => {
-    let sorted = [...filteredData];
+    const sorted = [...filteredData];
 
     if (sorting.length > 0) {
       const { id, desc } = sorting[0];

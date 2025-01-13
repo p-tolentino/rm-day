@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import {
   getAllWholesalers,
   getCurrentRole,
-  getCurrentUser,
   getUserLocations,
 } from "@/data/wholesalers";
 
