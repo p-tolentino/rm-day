@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
+
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import AchievementViewer from "@/components/ui/achievement-viewer";
@@ -121,7 +121,13 @@ export default function ProfilePage({
                   priority
                 />
               ) : (
-                <Skeleton className="w-auto h-full rounded-md opacity-10" />
+                <Image
+                  src={SUBTEAM_IMAGES.PLACEHOLDER}
+                  alt="Profile Picture"
+                  fill
+                  className="object-cover rounded-lg"
+                  priority
+                />
               )}
 
               <AvatarUpdateButton
@@ -144,7 +150,13 @@ export default function ProfilePage({
                   priority
                 />
               ) : (
-                <Skeleton className="w-auto h-full rounded-md opacity-10" />
+                <Image
+                  src={SUBTEAM_IMAGES.PLACEHOLDER}
+                  alt="Profile Picture"
+                  fill
+                  className="object-cover rounded-lg"
+                  priority
+                />
               )}
             </div>
           </div>
@@ -174,10 +186,8 @@ export default function ProfilePage({
                   </p>
                 </div>
                 <div>
-                  <Label className="text-gray-400">BIRTHDATE</Label>
-                  <p className="text-sm">
-                    {new Date(profile.dob).toLocaleDateString("en-PH")}
-                  </p>
+                  <Label className="text-gray-400">SUBTEAM</Label>
+                  <p className="text-sm">{profile.subTeam}</p>
                 </div>
                 <div>
                   <Label className="text-gray-400">LOCATION</Label>
@@ -205,31 +215,33 @@ export default function ProfilePage({
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-6 justify-center">
-                {profile.achievements.bigLeagueCircle.map(
-                  (achievement: Achievement) => (
-                    <div
-                      key={achievement.title}
-                      className="flex flex-col items-center"
-                    >
-                      <AchievementViewer
-                        title={achievement.title as AchievementTitle}
-                        achieved={achievement.achieved}
-                      />
-                      {ACHIEVEMENT_IMAGES[
-                        achievement.title as AchievementTitle
-                      ] === ACHIEVEMENT_IMAGES.PLACEHOLDER && (
-                        <span
-                          className={cn(
-                            "text-xs font-medium text-center",
-                            !achievement.achieved && "text-gray-300 opacity-50"
-                          )}
-                        >
-                          {achievement.title}
-                        </span>
-                      )}
-                    </div>
-                  )
-                )}
+                {profile.achievements &&
+                  profile.achievements.bigLeagueCircle.map(
+                    (achievement: Achievement) => (
+                      <div
+                        key={achievement.title}
+                        className="flex flex-col items-center"
+                      >
+                        <AchievementViewer
+                          title={achievement.title as AchievementTitle}
+                          achieved={achievement.achieved}
+                        />
+                        {ACHIEVEMENT_IMAGES[
+                          achievement.title as AchievementTitle
+                        ] === ACHIEVEMENT_IMAGES.PLACEHOLDER && (
+                          <span
+                            className={cn(
+                              "text-xs font-medium text-center",
+                              !achievement.achieved &&
+                                "text-gray-300 opacity-50"
+                            )}
+                          >
+                            {achievement.title}
+                          </span>
+                        )}
+                      </div>
+                    )
+                  )}
               </div>
             </CardContent>
           </Card>
@@ -240,28 +252,29 @@ export default function ProfilePage({
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-4 justify-center">
-                {profile.achievements.wealthBuildersCircle.map(
-                  (achievement: Achievement) => (
-                    <div
-                      key={achievement.title}
-                      className="flex flex-col items-center gap-2"
-                    >
-                      <AchievementViewer
-                        title={achievement.title as AchievementTitle}
-                        achieved={achievement.achieved}
-                      />
-
-                      <span
-                        className={cn(
-                          "text-xs font-medium text-center",
-                          !achievement.achieved && "text-gray-300 opacity-50"
-                        )}
+                {profile.achievements &&
+                  profile.achievements.wealthBuildersCircle.map(
+                    (achievement: Achievement) => (
+                      <div
+                        key={achievement.title}
+                        className="flex flex-col items-center gap-2"
                       >
-                        {achievement.title}
-                      </span>
-                    </div>
-                  )
-                )}
+                        <AchievementViewer
+                          title={achievement.title as AchievementTitle}
+                          achieved={achievement.achieved}
+                        />
+
+                        <span
+                          className={cn(
+                            "text-xs font-medium text-center",
+                            !achievement.achieved && "text-gray-300 opacity-50"
+                          )}
+                        >
+                          {achievement.title}
+                        </span>
+                      </div>
+                    )
+                  )}
               </div>
             </CardContent>
           </Card>

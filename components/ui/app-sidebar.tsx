@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-import { useState, createElement } from "react";
+import { useState, createElement, useEffect } from "react";
 
 import {
   Tooltip,
@@ -66,6 +66,7 @@ import { updateDeadline } from "@/actions/deadline";
 import RMDayForm from "../reports/rm-day";
 import ChangePasswordDialog from "../auth/change-password";
 import { useRouter } from "next/navigation";
+import { ChangeEmailDialog } from "../auth/change-email";
 
 const adminLinks = {
   navMain: [
@@ -204,6 +205,7 @@ export function AppSidebar({
   categories,
   products,
   hasSubmitted,
+  incompleteAccountSetup,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   userRole: "ADMIN" | "LEADER" | "WHOLESALER";
@@ -212,6 +214,7 @@ export function AppSidebar({
   categories?: any;
   products?: any;
   hasSubmitted: boolean;
+  incompleteAccountSetup: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -224,6 +227,57 @@ export function AppSidebar({
       : userRole === "LEADER"
       ? leaderLinks
       : memberLinks;
+
+  // Supabase Auth listener
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event) => {
+        if (event === "USER_UPDATED") {
+          const {
+            data: { user },
+          } = await supabase.auth.getUser();
+
+          console.log(user?.user_metadata);
+
+          if (user?.email) {
+            // Retrieve the old and new emails from the user's metadata
+            const oldEmail = user.user_metadata?.oldEmail;
+            const newEmail = user.user_metadata?.newEmail;
+
+            if (oldEmail && newEmail && newEmail === user.email) {
+              // Update the `wholesalers` table using the old email
+              const { error } = await supabase
+                .from("wholesalers")
+                .update({ email: newEmail })
+                .eq("email", oldEmail);
+
+              if (error) {
+                console.error(
+                  "Failed to update email in wholesalers table:",
+                  error
+                );
+                toast.error("Failed to update your email in the database.");
+              } else {
+                toast.success("Your email has been updated successfully.");
+
+                // Clear the stored emails from metadata
+                await supabase.auth.updateUser({
+                  data: { oldEmail: null, newEmail: null },
+                });
+              }
+            } else {
+              console.error("Old or new email not found in metadata.");
+              toast.error("Failed to retrieve email data for update.");
+            }
+          }
+        }
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -293,7 +347,11 @@ export function AppSidebar({
                       "flex align-middle items-center space-x-2 transition-all"
                     }
                     onClick={() => setOpen(true)}
-                    disabled={!form.watch("responses") || hasSubmitted}
+                    disabled={
+                      incompleteAccountSetup ||
+                      !form.watch("responses") ||
+                      hasSubmitted
+                    }
                   >
                     <FileInput className="w-4 h-4" />
                     <span>Submit RM Day Report</span>
@@ -322,9 +380,18 @@ export function AppSidebar({
               </Dialog>
             </div>
           </TooltipTrigger>
-          {hasSubmitted && ( // Show tooltip if the user has already submitted
+          {hasSubmitted && (
             <TooltipContent>
               <p>You have already submitted a report for this month.</p>
+            </TooltipContent>
+          )}
+
+          {incompleteAccountSetup && (
+            <TooltipContent>
+              <p>
+                You need to setup your account: Birthdate, Location, Profession,
+                Sponsor and Subteam.
+              </p>
             </TooltipContent>
           )}
         </Tooltip>
@@ -336,10 +403,35 @@ export function AppSidebar({
                 {item.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <a href={item.url}>
-                        {item.icon && createElement(item.icon, { size: 18 })}
-                        {item.title}
-                      </a>
+                      {incompleteAccountSetup ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div
+                              key={item.url}
+                              className="flex items-center ps-2 space-x-2 py-1 text-gray-400 italic hover:cursor-not-allowed"
+                            >
+                              <span>
+                                {item.icon &&
+                                  createElement(item.icon, { size: 18 })}
+                              </span>
+                              <span>{item.title}</span>
+                            </div>
+                          </TooltipTrigger>
+                          {incompleteAccountSetup && (
+                            <TooltipContent>
+                              <p>
+                                You need to setup your account: Birthdate,
+                                Location, Profession, Sponsor and Subteam.
+                              </p>
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
+                      ) : (
+                        <a href={item.url}>
+                          {item.icon && createElement(item.icon, { size: 18 })}
+                          {item.title}
+                        </a>
+                      )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -374,6 +466,7 @@ export function AppSidebar({
             </form>
           </Form>
         )}
+        <ChangeEmailDialog currentEmail={user?.email} />
         <ChangePasswordDialog />
         <Button
           type="button"

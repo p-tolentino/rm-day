@@ -391,8 +391,37 @@ export function SubteamReportDataTable({
       filtered = filtered.filter((report) => report.country === "Philippines");
     }
 
+    columnFilters.forEach((filter) => {
+      const columnId = filter.id;
+      const filterValue = filter.value;
+
+      if (columnId === "subTeam" && filterValue) {
+        filtered = filtered.filter((report) => report.subTeam === filterValue);
+      }
+
+      if (columnId === "country" && filterValue) {
+        filtered = filtered.filter((report) => report.country === filterValue);
+      }
+
+      if (columnId === "bigLeagueTitle" && filterValue) {
+        filtered = filtered.filter((report) => {
+          const wholesale = parseFloat(report.wholesale.toString());
+          const title = calculateBLC(wholesale);
+          return title === filterValue;
+        });
+      }
+
+      if (columnId === "wealthBuildersTitle" && filterValue) {
+        filtered = filtered.filter((report) => {
+          const income = parseFloat(report.income.toString());
+          const title = calculateWBC(income);
+          return title === filterValue;
+        });
+      }
+    });
+
     return filtered;
-  }, [data, date, reportTypeFilter]);
+  }, [data, date, reportTypeFilter, columnFilters]);
 
   const sortedData = useMemo(() => {
     const sorted = [...filteredData];
@@ -417,17 +446,23 @@ export function SubteamReportDataTable({
     const ranked = [];
     let currentRank = 1;
 
-    for (let i = 0; i < sortedData.length; i++) {
-      // If this is not the first row and the current value is different from the previous value, increment the rank
-      if (
-        i > 0 &&
-        sortedData[i][sorting[0]?.id as keyof Report] !==
-          sortedData[i - 1][sorting[0]?.id as keyof Report]
-      ) {
-        currentRank++;
+    if (sorting.length === 0) {
+      // Default ranking: sequential from 1 to n
+      for (let i = 0; i < sortedData.length; i++) {
+        ranked.push({ ...sortedData[i], rank: i + 1 });
       }
-
-      ranked.push({ ...sortedData[i], rank: currentRank });
+    } else {
+      // Sorted ranking: same rank for identical values
+      for (let i = 0; i < sortedData.length; i++) {
+        if (
+          i > 0 &&
+          sortedData[i][sorting[0]?.id as keyof Report] !==
+            sortedData[i - 1][sorting[0]?.id as keyof Report]
+        ) {
+          currentRank = i + 1;
+        }
+        ranked.push({ ...sortedData[i], rank: currentRank });
+      }
     }
 
     return ranked;

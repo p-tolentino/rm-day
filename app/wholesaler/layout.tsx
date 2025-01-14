@@ -9,6 +9,10 @@ import { getCurrentRole, getCurrentUser } from "@/data/wholesalers";
 import { getDeadline } from "@/data/deadline";
 import { hasSubmittedThisMonth } from "@/data/reports";
 import { getAllCategories, getAllProducts } from "@/data/food";
+import {
+  hasNotSetupAccount,
+  updateWholesalerEmail,
+} from "@/actions/wholesaler";
 
 export default async function UserLayout({
   children,
@@ -25,17 +29,28 @@ export default async function UserLayout({
     redirect("/login");
   }
 
-  const role = await getCurrentRole();
+  const updateResult = await updateWholesalerEmail();
+  if (!updateResult.success) {
+    console.error(updateResult.message);
+  }
 
-  const acceptReports = await getDeadline();
-
-  const profile = await getCurrentUser();
-
-  const categories = await getAllCategories();
-
-  const products = await getAllProducts();
-
-  const hasSubmitted = await hasSubmittedThisMonth();
+  const [
+    role,
+    acceptReports,
+    profile,
+    categories,
+    products,
+    hasSubmitted,
+    incompleteAccountSetup,
+  ] = await Promise.all([
+    getCurrentRole(),
+    getDeadline(),
+    getCurrentUser(),
+    getAllCategories(),
+    getAllProducts(),
+    hasSubmittedThisMonth(),
+    hasNotSetupAccount(),
+  ]);
 
   return (
     <SidebarProvider>
@@ -47,6 +62,7 @@ export default async function UserLayout({
         products={products}
         categories={categories}
         hasSubmitted={hasSubmitted}
+        incompleteAccountSetup={incompleteAccountSetup}
       />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>

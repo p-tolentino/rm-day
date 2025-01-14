@@ -9,6 +9,10 @@ import { getCurrentRole, getCurrentUser } from "@/data/wholesalers";
 import { getDeadline } from "@/data/deadline";
 import { getAllCategories, getAllProducts } from "@/data/food";
 import { hasSubmittedThisMonth } from "@/data/reports";
+import {
+  hasNotSetupAccount,
+  updateWholesalerEmail,
+} from "@/actions/wholesaler";
 
 export default async function AdminLayout({
   children,
@@ -25,22 +29,33 @@ export default async function AdminLayout({
     redirect("/login");
   }
 
-  const role = await getCurrentRole();
+  const updateResult = await updateWholesalerEmail();
+  if (!updateResult.success) {
+    console.error(updateResult.message);
+  }
 
-  if (role !== "ADMIN") {
+  const [
+    role,
+    acceptReports,
+    profile,
+    categories,
+    products,
+    hasSubmitted,
+    incompleteAccountSetup,
+  ] = await Promise.all([
+    getCurrentRole(),
+    getDeadline(),
+    getCurrentUser(),
+    getAllCategories(),
+    getAllProducts(),
+    hasSubmittedThisMonth(),
+    hasNotSetupAccount(),
+  ]);
+
+  if (role !== "ADMIN" || incompleteAccountSetup) {
     // Redirect to appropriate page based on role
     redirect("/wholesaler/profile");
   }
-
-  const acceptReports = await getDeadline();
-
-  const profile = await getCurrentUser();
-
-  const categories = await getAllCategories();
-
-  const products = await getAllProducts();
-
-  const hasSubmitted = await hasSubmittedThisMonth();
 
   return (
     <SidebarProvider>
@@ -52,6 +67,7 @@ export default async function AdminLayout({
         products={products}
         categories={categories}
         hasSubmitted={hasSubmitted}
+        incompleteAccountSetup={incompleteAccountSetup}
       />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>

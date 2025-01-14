@@ -53,17 +53,84 @@ export async function login(idNum: string, password: string) {
 export async function changePassword(newPassword: string) {
   const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   try {
     const { error } = await supabase.auth.updateUser({
       password: newPassword,
     });
 
-    if (error) throw error;
+    if (error) {
+      console.log(error);
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
 
-    revalidatePath("/change-password");
+    revalidatePath("/", "layout");
     return { success: true, message: "Password changed successfully" };
   } catch (error) {
     console.error("Change password error:", error);
+    return {
+      success: false,
+      message: "Failed to change password. Please try again.",
+    };
+  }
+}
+
+export async function changeEmail(newEmail: string) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user?.email) {
+    return {
+      success: false,
+      message: "User not found.",
+    };
+  }
+
+  try {
+    const oldEmail = user.email;
+
+    // Store the old and new emails in the user's metadata
+    const { error: metadataError } = await supabase.auth.updateUser({
+      data: { oldEmail, newEmail },
+    });
+
+    if (metadataError) {
+      console.error("Failed to store email data in metadata:", metadataError);
+      return {
+        success: false,
+        message: "Failed to store email data.",
+      };
+    }
+
+    const { error: updateError } = await supabase.auth.updateUser({
+      email: newEmail.trim().toLocaleLowerCase(),
+    });
+
+    if (updateError) {
+      console.error("Email update error:", updateError);
+      return {
+        success: false,
+        message: updateError.message,
+      };
+    }
+
+    revalidatePath("/", "layout");
+    return {
+      success: true,
+      message:
+        "A confirmation email has been sent to your new email address. Please confirm the email change.",
+    };
+  } catch (error) {
+    console.error("Change email error:", error);
     return {
       success: false,
       message: "Failed to change password. Please try again.",

@@ -32,7 +32,7 @@ export default async function Ranking() {
       <Header pageTitle={metadata.title} />
       <div className="container mx-auto py-10">
         <ReportDataTable
-          data={formattedReports}
+          data={formattedReports.sort((a, b) => b.cmir - a.cmir)}
           userLocations={userLocations || []}
         />
       </div>

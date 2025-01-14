@@ -8,6 +8,11 @@ import { AuthCheck } from "@/components/auth/auth-check";
 import { getCurrentRole, getCurrentUser } from "@/data/wholesalers";
 import { getDeadline } from "@/data/deadline";
 import { hasSubmittedThisMonth } from "@/data/reports";
+import {
+  hasNotSetupAccount,
+  updateWholesalerEmail,
+} from "@/actions/wholesaler";
+import { getAllCategories, getAllProducts } from "@/data/food";
 
 export default async function LeaderLayout({
   children,
@@ -24,18 +29,33 @@ export default async function LeaderLayout({
     redirect("/login");
   }
 
-  const role = await getCurrentRole();
+  const updateResult = await updateWholesalerEmail();
+  if (!updateResult.success) {
+    console.error(updateResult.message);
+  }
 
-  if (role !== "LEADER") {
+  const [
+    role,
+    acceptReports,
+    profile,
+    categories,
+    products,
+    hasSubmitted,
+    incompleteAccountSetup,
+  ] = await Promise.all([
+    getCurrentRole(),
+    getDeadline(),
+    getCurrentUser(),
+    getAllCategories(),
+    getAllProducts(),
+    hasSubmittedThisMonth(),
+    hasNotSetupAccount(),
+  ]);
+
+  if (role !== "LEADER" || incompleteAccountSetup) {
     // Redirect to appropriate page based on role
     redirect("/wholesaler/profile");
   }
-
-  const acceptReports = await getDeadline();
-
-  const profile = await getCurrentUser();
-
-  const hasSubmitted = await hasSubmittedThisMonth();
 
   return (
     <SidebarProvider>
@@ -44,7 +64,10 @@ export default async function LeaderLayout({
         userRole={role}
         acceptReports={acceptReports}
         user={profile}
+        products={products}
+        categories={categories}
         hasSubmitted={hasSubmitted}
+        incompleteAccountSetup={incompleteAccountSetup}
       />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>

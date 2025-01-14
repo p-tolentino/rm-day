@@ -27,9 +27,10 @@ import { Pencil } from "lucide-react";
 import { registerSchema } from "@/components/auth/register-wholesaler";
 import { updateWholesalerInfo } from "@/actions/wholesaler";
 import { toast } from "sonner";
-import { EnhancedDatePicker } from "@/components/ui/enhanced-date-picker";
+// import { EnhancedDatePicker } from "@/components/ui/enhanced-date-picker";
 import LocationSelector from "@/components/ui/location-input";
 import ComboBoxSelector from "@/components/ui/combo-box-input";
+import { subTeams } from "@/utils/subteams";
 
 interface EditProfileDialogProps {
   profile: any;
@@ -53,12 +54,12 @@ export function EditProfileDialog({
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      dob: convertToPhilippineTime(new Date(profile.dob)),
-      email: profile.email,
+      // dob: convertToPhilippineTime(new Date(profile.dob)),
+      // email: profile.email,
       firstName: profile.firstName,
       idNum: profile.idNum,
       lastName: profile.lastName,
-      middleName: profile.middleName,
+      middleName: profile.middleName || " ",
       profession: profile.profession,
       sponsor: profile.sponsor,
       subTeam: profile.subTeam,
@@ -69,11 +70,12 @@ export function EditProfileDialog({
 
   const onSubmit = async (values: z.infer<typeof registerSchema>) => {
     setIsLoading(true); // Start loading
-    try {
-      const phDob = convertToPhilippineTime(new Date(values.dob));
-      const updatedValues = { ...values, dob: phDob };
 
-      const result = await updateWholesalerInfo(updatedValues);
+    try {
+      // const phDob = convertToPhilippineTime(new Date(values.dob));
+      // const updatedValues = { ...values, dob: phDob };
+
+      const result = await updateWholesalerInfo(values);
       if (result.success) {
         toast.success(result.message);
         setOpen(false); // Close the dialog on success
@@ -100,7 +102,7 @@ export function EditProfileDialog({
           <DialogTitle>Edit Personal Information</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form className="space-y-4">
             {/* Full Name */}
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-4">
@@ -187,7 +189,7 @@ export function EditProfileDialog({
               </div>
 
               <div className="col-span-4">
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="dob"
                   render={({ field }) => (
@@ -208,6 +210,26 @@ export function EditProfileDialog({
                             }
                           }}
                           disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                /> */}
+
+                <FormField
+                  control={form.control}
+                  name="subTeam"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Subteam</FormLabel>
+                      <FormControl>
+                        <ComboBoxSelector
+                          onChange={(value) => {
+                            field.onChange(value);
+                          }}
+                          itemName="subteam"
+                          items={subTeams}
                         />
                       </FormControl>
                       <FormMessage />
@@ -239,7 +261,7 @@ export function EditProfileDialog({
               </div>
             </div>
 
-            {/* Location Input at the Bottom */}
+            {/* Location */}
             <FormField
               control={form.control}
               name="location"
@@ -266,6 +288,26 @@ export function EditProfileDialog({
                 </FormItem>
               )}
             />
+
+            {/* Email 
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email Address:</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="juan.delacruz@example.com"
+                      type="email"
+                      value={field.value?.toLocaleUpperCase()}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />*/}
 
             {/* Save Changes Button */}
             <div className="flex justify-end">

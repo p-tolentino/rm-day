@@ -44,7 +44,7 @@ export async function registerWholesalerInfo(
   // }
 
   const {
-    dob,
+    // dob,
     email,
     firstName,
     idNum,
@@ -58,7 +58,7 @@ export async function registerWholesalerInfo(
   } = values;
 
   const { data, error } = await supabase.from("wholesalers").insert({
-    dob: formatDate(dob),
+    // dob: formatDate(dob),
     email: email.trim().toLocaleLowerCase(),
     idNum: cleanText(idNum),
     firstName: cleanText(firstName),
@@ -105,8 +105,8 @@ export async function updateWholesalerInfo(
   // }
 
   const {
-    dob,
-    email,
+    // dob,
+    // email,
     firstName,
     idNum,
     lastName,
@@ -121,8 +121,8 @@ export async function updateWholesalerInfo(
   const { data, error } = await supabase
     .from("wholesalers")
     .update({
-      dob: formatDate(dob),
-      email: email.trim().toLocaleLowerCase(),
+      // dob: formatDate(dob),
+      // email: email.trim().toLocaleLowerCase(),
       firstName: cleanText(firstName),
       middleName: middleName ? cleanText(middleName) : null,
       lastName: cleanText(lastName),
@@ -147,6 +147,66 @@ export async function updateWholesalerInfo(
     message: "Profile updated successfully.",
     data,
   };
+}
+
+export async function updateWholesalerEmail() {
+  const supabase = await createClient();
+
+  try {
+    // Get the current user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user?.email) {
+      return {
+        success: false,
+        message: "User not found.",
+      };
+    }
+
+    // Retrieve the old and new emails from the user's metadata
+    const oldEmail = user.user_metadata?.oldEmail;
+    const newEmail = user.user_metadata?.newEmail;
+
+    if (!oldEmail || !newEmail || newEmail !== user.email) {
+      return {
+        success: false,
+        message: "Email data not found or mismatch.",
+      };
+    }
+
+    // Update the `wholesalers` table using the old email
+    const { error } = await supabase
+      .from("wholesalers")
+      .update({ email: newEmail })
+      .eq("email", oldEmail);
+
+    if (error) {
+      console.error("Failed to update email in wholesalers table:", error);
+      return {
+        success: false,
+        message: "Failed to update your email in the database.",
+      };
+    }
+
+    // Clear the stored emails from metadata
+    await supabase.auth.updateUser({
+      data: { oldEmail: null, newEmail: null },
+    });
+
+    revalidatePath("/", "layout");
+    return {
+      success: true,
+      message: "Your email has been updated successfully.",
+    };
+  } catch (error) {
+    console.error("Update wholesalers email error:", error);
+    return {
+      success: false,
+      message: "Failed to update email. Please try again.",
+    };
+  }
 }
 
 export async function updateUserRole(wholesalerId: string, newRole: string) {
@@ -199,4 +259,28 @@ export async function updateWholesalerAvatar(idNum: string, avatarUrl: string) {
       message: "Failed to update avatar",
     };
   }
+}
+
+export async function hasNotSetupAccount() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // if (!user) {
+  //   return { message: "User is not logged in." };
+  // }
+
+  const { data: currentUser } = await supabase
+    .from("wholesalers")
+    .select("*")
+    .eq("email", user?.email)
+    .single();
+
+  const { subTeam, sponsor, country, profession } = currentUser;
+
+  const noAccount = !subTeam || !sponsor || !country || !profession;
+
+  return noAccount;
 }

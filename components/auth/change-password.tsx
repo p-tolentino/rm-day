@@ -42,7 +42,7 @@ const changePasswordSchema = z
   });
 
 export default function ChangePasswordDialog() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof changePasswordSchema>>({
@@ -60,7 +60,7 @@ export default function ChangePasswordDialog() {
       if (result.success) {
         toast.success(result.message);
         form.reset();
-        setIsOpen(false);
+        setOpen(false);
       } else {
         toast.error(result.message);
       }
@@ -73,7 +73,7 @@ export default function ChangePasswordDialog() {
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger className="w-full" asChild>
         <Button
           className="flex items-center gap-2 w-full mb-2"

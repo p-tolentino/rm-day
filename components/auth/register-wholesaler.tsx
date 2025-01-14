@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { subYears } from "date-fns";
+// import { subYears } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/file-upload";
 import { Input } from "@/components/ui/input";
 import LocationSelector from "../ui/location-input";
-import { EnhancedDatePicker } from "@/components/ui/enhanced-date-picker";
+// import { EnhancedDatePicker } from "@/components/ui/enhanced-date-picker";
 import ComboBoxSelector from "../ui/combo-box-input";
 import { useRouter } from "next/navigation";
 import {
@@ -35,7 +35,6 @@ import {
 } from "@/actions/wholesaler";
 import { uploadAvatar } from "@/actions/upload";
 import { subTeams } from "@/utils/subteams";
-import { convertToPhilippineTime } from "@/app/wholesaler/profile/_components/edit-profile";
 
 const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -60,7 +59,7 @@ export const registerSchema = z.object({
   middleName: z.string().optional(),
   lastName: z.string(),
   profession: z.string(),
-  dob: z.coerce.date(),
+  // dob: z.coerce.date(),
   location: z.tuple([z.string(), z.string().optional()]),
   email: z.string(),
 });
@@ -89,7 +88,7 @@ export default function RegisterWholesalerForm({
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      dob: convertToPhilippineTime(subYears(new Date(), 18)),
+      // dob: convertToPhilippineTime(subYears(new Date(), 18)),
     },
   });
 
@@ -97,10 +96,10 @@ export default function RegisterWholesalerForm({
     setIsLoading(true);
 
     try {
-      const phDob = convertToPhilippineTime(new Date(values.dob));
-      const updatedValues = { ...values, dob: phDob };
+      // const phDob = convertToPhilippineTime(new Date(values.dob));
+      // const updatedValues = { ...values, dob: phDob };
 
-      const wholesalerResponse = await registerWholesalerInfo(updatedValues);
+      const wholesalerResponse = await registerWholesalerInfo(values);
 
       if (!wholesalerResponse.success) {
         toast.warning("Failed to register wholesaler");
@@ -349,7 +348,28 @@ export default function RegisterWholesalerForm({
                   />
                 </div>
 
+                {/* Email */}
                 <div className="col-span-6">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email Address:</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="juan.delacruz@example.com"
+                            type="email"
+                            value={field.value?.toLocaleUpperCase()}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                {/* <div className="col-span-6">
                   <FormField
                     control={form.control}
                     name="dob"
@@ -376,7 +396,7 @@ export default function RegisterWholesalerForm({
                       </FormItem>
                     )}
                   />
-                </div>
+                </div> */}
               </div>
 
               {/* Country, State, City */}
@@ -408,26 +428,6 @@ export default function RegisterWholesalerForm({
                             city || cityName || "",
                           ]);
                         }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Email */}
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email Address:</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="juan.delacruz@example.com"
-                        type="email"
-                        value={field.value?.toLocaleUpperCase()}
                       />
                     </FormControl>
                     <FormMessage />

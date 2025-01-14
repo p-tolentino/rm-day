@@ -258,8 +258,37 @@ export function OverallRankingDataTable({
       filtered = filtered.filter((report) => report.country === "Philippines");
     }
 
+    columnFilters.forEach((filter) => {
+      const columnId = filter.id;
+      const filterValue = filter.value;
+
+      if (columnId === "subTeam" && filterValue) {
+        filtered = filtered.filter((report) => report.subTeam === filterValue);
+      }
+
+      if (columnId === "country" && filterValue) {
+        filtered = filtered.filter((report) => report.country === filterValue);
+      }
+
+      if (columnId === "bigLeagueTitle" && filterValue) {
+        filtered = filtered.filter((report) => {
+          const wholesale = parseFloat(report.wholesale.toString());
+          const title = calculateBLC(wholesale);
+          return title === filterValue;
+        });
+      }
+
+      if (columnId === "wealthBuildersTitle" && filterValue) {
+        filtered = filtered.filter((report) => {
+          const income = parseFloat(report.income.toString());
+          const title = calculateWBC(income);
+          return title === filterValue;
+        });
+      }
+    });
+
     return filtered;
-  }, [data, reportTypeFilter]);
+  }, [data, reportTypeFilter, columnFilters]);
 
   const sortedData = useMemo(() => {
     const sorted = [...filteredData];
@@ -284,17 +313,23 @@ export function OverallRankingDataTable({
     const ranked = [];
     let currentRank = 1;
 
-    for (let i = 0; i < sortedData.length; i++) {
-      // If this is not the first row and the current value is different from the previous value, increment the rank
-      if (
-        i > 0 &&
-        sortedData[i][sorting[0]?.id as keyof Report] !==
-          sortedData[i - 1][sorting[0]?.id as keyof Report]
-      ) {
-        currentRank++;
+    if (sorting.length === 0) {
+      // Default ranking: sequential from 1 to n
+      for (let i = 0; i < sortedData.length; i++) {
+        ranked.push({ ...sortedData[i], rank: i + 1 });
       }
-
-      ranked.push({ ...sortedData[i], rank: currentRank });
+    } else {
+      // Sorted ranking: same rank for identical values
+      for (let i = 0; i < sortedData.length; i++) {
+        if (
+          i > 0 &&
+          sortedData[i][sorting[0]?.id as keyof Report] !==
+            sortedData[i - 1][sorting[0]?.id as keyof Report]
+        ) {
+          currentRank = i + 1;
+        }
+        ranked.push({ ...sortedData[i], rank: currentRank });
+      }
     }
 
     return ranked;
@@ -379,7 +414,7 @@ export function OverallRankingDataTable({
       {/* Search & Filter */}
       <div className="flex items-end justify-between py-4 gap-4">
         {/* Global Filter or Search Function */}
-        <div className="flex items-end space-x-2 w-1/3">
+        <div className="flex items-end space-x-2 w-1/4">
           <div className="relative w-full">
             <Input
               className="peer pe-9 ps-9"
@@ -414,8 +449,8 @@ export function OverallRankingDataTable({
         </div>
 
         {/* Column Filters */}
-        <div className="flex items-end space-x-2">
-          <div className="flex flex-col flex-1">
+        <div className="flex items-end justify-end space-x-2 w-full">
+          <div className="flex flex-col w-1/6">
             <label
               htmlFor="report-type-filter"
               className="text-sm font-medium mr-2"
@@ -600,6 +635,7 @@ export function OverallRankingDataTable({
               </SelectContent>
             </Select>
           </div>
+
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

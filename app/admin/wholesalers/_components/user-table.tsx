@@ -105,7 +105,7 @@ export type User = {
   firstName: string;
   middleName: string;
   lastName: string;
-  dob: string;
+  // dob: string;
   country: string;
   city: string;
   email: string;
@@ -174,13 +174,13 @@ const createColumns = (
     accessorKey: "lastName",
     header: "Last Name",
   },
-  {
-    accessorKey: "dob",
-    header: "Birth Date",
-    cell: ({ row }) => (
-      <div>{new Date(row.getValue("dob")).toLocaleDateString("en-PH")}</div>
-    ),
-  },
+  // {
+  //   accessorKey: "dob",
+  //   header: "Birth Date",
+  //   cell: ({ row }) => (
+  //     <div>{new Date(row.getValue("dob")).toLocaleDateString("en-PH")}</div>
+  //   ),
+  // },
   {
     accessorKey: "country",
     header: "Country",
