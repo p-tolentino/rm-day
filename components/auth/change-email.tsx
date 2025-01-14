@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { createClient } from "@/utils/supabase/client";
 import { Mail } from "lucide-react";
 import { changeEmail } from "@/actions/auth";
 
