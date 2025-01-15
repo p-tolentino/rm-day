@@ -498,7 +498,7 @@ const SubteamMemberForm = ({
               name="mmppSummaryReport"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>MSR (Product Movers)</FormLabel>
+                  <FormLabel>MSR (Product Movers-JC)</FormLabel>
                   <FormControl>
                     {isLoading ? (
                       <div className="flex items-center justify-start h-9 w-full bg-background border opacity-50 rounded-md px-3">
@@ -576,7 +576,7 @@ const SubteamMemberForm = ({
           name="consolidatedMonthlyFoodIncome"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Product Movers Food</FormLabel>
+              <FormLabel>Product Movers-Food</FormLabel>
               <div className="flex items-center space-x-2 w-full">
                 <FormControl>
                   {isLoading ? (
