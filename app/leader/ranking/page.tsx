@@ -19,9 +19,9 @@ export default async function Ranking() {
     );
 
     if (userInfo) {
-      const { subTeam, city, country, idNum, profession } = userInfo;
+      const { subTeam, city, country, idNum, profession, avatar } = userInfo;
 
-      return { ...report, subTeam, country, idNum, profession, city };
+      return { ...report, subTeam, country, idNum, profession, city, avatar };
     } else {
       return [];
     }

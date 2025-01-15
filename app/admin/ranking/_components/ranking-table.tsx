@@ -99,6 +99,7 @@ export type Report = {
   createdAt: string;
   rank: number;
   subTeam: string;
+  avatar: string;
   fullName: string;
   wholesalerId: string;
   profession: string;
@@ -155,11 +156,17 @@ const createColumns = (
     ),
   },
   {
-    accessorKey: "subTeam",
-    header: "Subteam",
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
+    accessorKey: "avatar",
+    header: "Picture",
+    cell: ({ row }) => (
+      <ImageViewer
+        title="Picture"
+        imageUrl={
+          row.original.avatar ||
+          "https://knetic.org.uk/wp-content/uploads/2020/07/Pcture-Placeholder.png"
+        }
+      />
+    ),
   },
   {
     accessorKey: "fullName",
@@ -175,7 +182,13 @@ const createColumns = (
       );
     },
   },
-
+  {
+    accessorKey: "subTeam",
+    header: "Subteam",
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
   {
     accessorKey: "profession",
     header: "Profession",
@@ -185,41 +198,6 @@ const createColumns = (
     header: "Country",
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
-    },
-  },
-  {
-    accessorKey: "wholesale",
-    header: "Total Wholesale",
-  },
-  {
-    accessorKey: "bigLeagueTitle",
-    header: "BLC",
-    cell: ({ row }) => {
-      const wholesale = parseFloat(row.getValue("wholesale"));
-      return <div>{calculateBLC(wholesale)}</div>;
-    },
-    filterFn: (row, id, value) => {
-      const wholesale = parseFloat(row.getValue("wholesale"));
-      const title = calculateBLC(wholesale);
-      return value.includes(title);
-    },
-  },
-  {
-    accessorKey: "income",
-    header: "Total Income",
-    cell: ({ row }) => <div>{formatCurrency(row.getValue("income"))}</div>,
-  },
-  {
-    accessorKey: "wealthBuildersTitle",
-    header: "WBC",
-    cell: ({ row }) => {
-      const income = parseFloat(row.getValue("income"));
-      return <div>{calculateWBC(income)}</div>;
-    },
-    filterFn: (row, id, value) => {
-      const income = parseFloat(row.getValue("income"));
-      const title = calculateWBC(income);
-      return value.includes(title);
     },
   },
   {
@@ -311,10 +289,44 @@ const createColumns = (
       </div>
     ),
   },
-
+  {
+    accessorKey: "income",
+    header: "Total Income",
+    cell: ({ row }) => <div>{formatCurrency(row.getValue("income"))}</div>,
+  },
+  {
+    accessorKey: "wealthBuildersTitle",
+    header: "WBC",
+    cell: ({ row }) => {
+      const income = parseFloat(row.getValue("income"));
+      return <div>{calculateWBC(income)}</div>;
+    },
+    filterFn: (row, id, value) => {
+      const income = parseFloat(row.getValue("income"));
+      const title = calculateWBC(income);
+      return value.includes(title);
+    },
+  },
+  {
+    accessorKey: "wholesale",
+    header: "Total Wholesale",
+  },
+  {
+    accessorKey: "bigLeagueTitle",
+    header: "BLC",
+    cell: ({ row }) => {
+      const wholesale = parseFloat(row.getValue("wholesale"));
+      return <div>{calculateBLC(wholesale)}</div>;
+    },
+    filterFn: (row, id, value) => {
+      const wholesale = parseFloat(row.getValue("wholesale"));
+      const title = calculateBLC(wholesale);
+      return value.includes(title);
+    },
+  },
   {
     accessorKey: "createdBy",
-    header: "Created By",
+    header: "Submitted By",
   },
   // TODO: ACTIONS
   {

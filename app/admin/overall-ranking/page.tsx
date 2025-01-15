@@ -48,9 +48,16 @@ export default async function OverallRanking() {
       );
 
       if (userInfo) {
-        const { subTeam, country, idNum, profession } = userInfo;
+        const { subTeam, country, idNum, profession, avatar } = userInfo;
 
-        return { ...report, subTeam, country, wholesalerId: idNum, profession };
+        return {
+          ...report,
+          subTeam,
+          country,
+          wholesalerId: idNum,
+          profession,
+          avatar,
+        };
       } else {
         return null;
       }

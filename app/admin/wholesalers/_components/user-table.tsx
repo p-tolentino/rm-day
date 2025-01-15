@@ -144,7 +144,7 @@ const createColumns = (
     header: "ID Number",
   },
   {
-    accessorKey: "picture",
+    accessorKey: "avatar",
     header: "Picture",
     cell: ({ row }) => (
       <ImageViewer
