@@ -93,25 +93,38 @@ export async function createRmdReport(values: z.infer<typeof reportSchema>) {
     return { success: false, message: reportError.message };
   }
 
-  const currentAchievements = wholesalerData.achievements || {
-    bigLeagueCircle: [],
-    wealthBuildersCircle: [],
-  };
+  // ? SKIPPING ACHIEVED RANKS
+
+  // const currentAchievements = wholesalerData.achievements || {
+  //   bigLeagueCircle: [],
+  //   wealthBuildersCircle: [],
+  // };
 
   // Calculate achievements based on the submitted totals
-  const newAchievements = {
+  // const newAchievements = {
+  //   bigLeagueCircle: BLC_TITLES.map(({ title, threshold }) => ({
+  //     title,
+  //     achieved:
+  //       currentAchievements.bigLeagueCircle.find((a: any) => a.title === title)
+  //         ?.achieved || monthlyWholesale >= threshold,
+  //   })),
+  //   wealthBuildersCircle: WBC_TITLES.map(({ title, threshold }) => ({
+  //     title,
+  //     achieved:
+  //       currentAchievements.wealthBuildersCircle.find(
+  //         (a: any) => a.title === title
+  //       )?.achieved || parseFloat(monthlyIncome) >= threshold,
+  //   })),
+  // };
+
+  const achievements = {
     bigLeagueCircle: BLC_TITLES.map(({ title, threshold }) => ({
       title,
-      achieved:
-        currentAchievements.bigLeagueCircle.find((a: any) => a.title === title)
-          ?.achieved || monthlyWholesale >= threshold,
+      achieved: monthlyWholesale >= threshold,
     })),
     wealthBuildersCircle: WBC_TITLES.map(({ title, threshold }) => ({
       title,
-      achieved:
-        currentAchievements.wealthBuildersCircle.find(
-          (a: any) => a.title === title
-        )?.achieved || parseFloat(monthlyIncome) >= threshold,
+      achieved: parseFloat(monthlyIncome) >= threshold,
     })),
   };
 
@@ -121,7 +134,9 @@ export async function createRmdReport(values: z.infer<typeof reportSchema>) {
     .update({
       totalWholesale: monthlyWholesale,
       totalIncome: parseFloat(monthlyIncome),
-      achievements: newAchievements,
+      achievements,
+      // ? SKIPPING ACHIEVED RANKS
+      // achievements: newAchievements,
     })
     .eq("idNum", idNumber);
 

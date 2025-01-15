@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -25,11 +26,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calculator, LoaderCircle } from "lucide-react";
+import { Calculator, CircleAlert, LoaderCircle } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { FoodCalculator } from "./food-calculator";
 import { createRmdReport } from "@/actions/report";
 import { uploadFile } from "@/actions/upload";
+import { formatCurrency } from "@/utils/currency";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ["image/jpg", "image/jpeg", "image/png"];
@@ -111,9 +113,24 @@ const RMDayForm = ({
     },
   });
 
+  const currentWholesale = user.totalWholesale || 0;
+  const currentIncome = user.totalIncome || 0;
+
+  const lessThanWholesale = form.watch("monthlyWholesale") < currentWholesale;
+
+  const lessThanIncome =
+    parseFloat(form.watch("monthlyIncome")) < currentIncome;
+
   const onSubmit = async (values: z.infer<typeof reportSchema>) => {
     try {
       setIsLoading(true);
+
+      if (lessThanWholesale || lessThanIncome) {
+        toast.warning(
+          "Wholesale / Income values cannot be less than your current highest values."
+        );
+        return;
+      }
 
       if (files?.[0] && files?.[1]) {
         const cmirData = new FormData();
@@ -272,19 +289,30 @@ const RMDayForm = ({
                         />
                       </div>
                     ) : (
-                      <Input
-                        placeholder="0"
-                        type="number"
-                        {...field}
-                        min={0}
-                        disabled={isLoading}
-                        onChange={(e) =>
-                          form.setValue(
-                            "monthlyWholesale",
-                            Number(e.target.value)
-                          )
-                        }
-                      />
+                      <>
+                        <Input
+                          placeholder="0"
+                          type="number"
+                          {...field}
+                          min={0}
+                          disabled={isLoading}
+                          onChange={(e) =>
+                            form.setValue(
+                              "monthlyWholesale",
+                              Number(e.target.value)
+                            )
+                          }
+                        />
+                        {lessThanWholesale && (
+                          <FormDescription>
+                            <span className="text-xs text-red-500 flex items-center gap-1">
+                              <CircleAlert size={15} />
+                              {` Total Income cannot be less than your current
+                              highest wholesale: ${currentWholesale}`}
+                            </span>
+                          </FormDescription>
+                        )}
+                      </>
                     )}
                   </FormControl>
                   <FormMessage />
@@ -312,14 +340,25 @@ const RMDayForm = ({
                         />
                       </div>
                     ) : (
-                      <Input
-                        placeholder="PHP50,000,000"
-                        {...field}
-                        min={0}
-                        type="number"
-                        step={0.01}
-                        disabled={isLoading}
-                      />
+                      <>
+                        <Input
+                          placeholder="PHP50,000,000"
+                          {...field}
+                          min={0}
+                          type="number"
+                          step={0.01}
+                          disabled={isLoading}
+                        />
+                        {lessThanIncome && (
+                          <FormDescription>
+                            <span className="text-xs text-red-500 flex items-center gap-1">
+                              <CircleAlert size={15} />
+                              {`Total Income cannot be less than your current
+                              highest income: ${formatCurrency(currentIncome)}`}
+                            </span>
+                          </FormDescription>
+                        )}
+                      </>
                     )}
                   </FormControl>
                   <FormMessage />
@@ -585,7 +624,12 @@ const RMDayForm = ({
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={!acceptReports || isLoading}>
+        <Button
+          type="submit"
+          disabled={
+            !acceptReports || isLoading || lessThanWholesale || lessThanIncome
+          }
+        >
           {isLoading ? (
             <LoaderCircle
               className="animate-spin"

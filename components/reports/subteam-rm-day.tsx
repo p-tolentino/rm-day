@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -25,7 +26,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calculator, LoaderCircle } from "lucide-react";
+import { Calculator, CircleAlert, LoaderCircle } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { FoodCalculator } from "./food-calculator";
 import {
@@ -36,6 +37,7 @@ import {
 import { createRmdReport } from "@/actions/report";
 import { uploadFile } from "@/actions/upload";
 import ComboBoxSelector from "../ui/combo-box-input";
+import { formatCurrency } from "@/utils/currency";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ["image/jpg", "image/jpeg", "image/png"];
@@ -110,6 +112,15 @@ const SubteamMemberForm = ({
     },
   });
 
+  const [selectedUserWholesale, setSelectedUserWholesale] = useState(0);
+  const [selectedUserIncome, setSelectedUserIncome] = useState(0);
+
+  const lessThanWholesale =
+    form.watch("monthlyWholesale") < selectedUserWholesale;
+
+  const lessThanIncome =
+    parseFloat(form.watch("monthlyIncome")) < selectedUserIncome;
+
   const fetchSubteamMembers = async () => {
     setIsLoading(true);
     setIsLoadingFetch(true);
@@ -143,6 +154,13 @@ const SubteamMemberForm = ({
   const onSubmit = async (values: z.infer<typeof reportSchema>) => {
     try {
       setIsLoading(true);
+
+      if (lessThanWholesale || lessThanIncome) {
+        toast.warning(
+          "Wholesale / Income values cannot be less than wholesaler's current highest values."
+        );
+        return;
+      }
 
       if (files?.[0] && files?.[1]) {
         const cmirData = new FormData();
@@ -240,7 +258,10 @@ const SubteamMemberForm = ({
       "monthlyIncome",
       wholesalerData.totalIncome?.toString() || "0"
     );
+    setSelectedUserIncome(wholesalerData.totalIncome);
+
     form.setValue("monthlyWholesale", wholesalerData.totalWholesale || 0);
+    setSelectedUserWholesale(wholesalerData.totalWholesale);
   };
 
   return (
@@ -357,19 +378,30 @@ const SubteamMemberForm = ({
                         />
                       </div>
                     ) : (
-                      <Input
-                        placeholder="0"
-                        type="number"
-                        {...field}
-                        min={0}
-                        disabled={!wholesalerId}
-                        onChange={(e) =>
-                          form.setValue(
-                            "monthlyWholesale",
-                            Number(e.target.value)
-                          )
-                        }
-                      />
+                      <>
+                        <Input
+                          placeholder="0"
+                          type="number"
+                          {...field}
+                          min={0}
+                          disabled={!wholesalerId}
+                          onChange={(e) =>
+                            form.setValue(
+                              "monthlyWholesale",
+                              Number(e.target.value)
+                            )
+                          }
+                        />
+                        {lessThanWholesale && (
+                          <FormDescription>
+                            <span className="text-xs text-red-500 flex items-center gap-1">
+                              <CircleAlert size={15} />
+                              {` Total Income cannot be less than wholesaler's current
+                              highest wholesale: ${selectedUserWholesale}`}
+                            </span>
+                          </FormDescription>
+                        )}
+                      </>
                     )}
                   </FormControl>
                   <FormMessage />
@@ -397,14 +429,27 @@ const SubteamMemberForm = ({
                         />
                       </div>
                     ) : (
-                      <Input
-                        placeholder="PHP50,000,000"
-                        {...field}
-                        min={0}
-                        type="number"
-                        step={0.01}
-                        disabled={!wholesalerId}
-                      />
+                      <>
+                        <Input
+                          placeholder="PHP50,000,000"
+                          {...field}
+                          min={0}
+                          type="number"
+                          step={0.01}
+                          disabled={!wholesalerId}
+                        />
+                        {lessThanIncome && (
+                          <FormDescription>
+                            <span className="text-xs text-red-500 flex items-center gap-1">
+                              <CircleAlert size={15} />
+                              {`Total Income cannot be less than your current
+                                                      highest income: ${formatCurrency(
+                                                        selectedUserIncome
+                                                      )}`}
+                            </span>
+                          </FormDescription>
+                        )}
+                      </>
                     )}
                   </FormControl>
                   <FormMessage />
