@@ -236,8 +236,11 @@ const SubteamMemberForm = ({
     }
 
     // If no error, set the form values
-    form.setValue("monthlyIncome", wholesalerData.totalIncome.toString());
-    form.setValue("monthlyWholesale", wholesalerData.totalWholesale);
+    form.setValue(
+      "monthlyIncome",
+      wholesalerData.totalIncome?.toString() || "0"
+    );
+    form.setValue("monthlyWholesale", wholesalerData.totalWholesale || 0);
   };
 
   return (
@@ -275,7 +278,7 @@ const SubteamMemberForm = ({
                           field.onChange(value);
                           handleComboboxChange(value || "");
                         }}
-                        itemName="subteam member"
+                        itemName="wholesaler ID"
                         items={subteamMembers || []}
                       />
                     )}

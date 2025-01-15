@@ -52,8 +52,6 @@ export async function getSubteamWholesalers() {
     return [];
   }
 
-  console.log(subTeam);
-
   return subTeam;
 }
 
@@ -78,14 +76,30 @@ export async function getNonSubmittingSubteamMembers() {
     return [];
   }
 
-  const { data: subteamMembers, error } = await supabase
-    .from("wholesalers")
-    .select("idNum")
-    .eq("subTeam", profile.subTeam);
+  let subteamMembers;
 
-  if (error || !subteamMembers) {
-    console.error("Error fetching subteam members:", error);
-    return [];
+  if (profile.subTeam === "ADMIN") {
+    const { data: allWholesalers, error } = await supabase
+      .from("wholesalers")
+      .select("idNum");
+
+    if (error || !allWholesalers) {
+      console.error("Error fetching subteam members:", error);
+      return [];
+    }
+    subteamMembers = allWholesalers;
+  } else {
+    const { data: teamMembers, error } = await supabase
+      .from("wholesalers")
+      .select("idNum")
+      .eq("subTeam", profile.subTeam);
+
+    if (error || !teamMembers) {
+      console.error("Error fetching subteam members:", error);
+      return [];
+    }
+
+    subteamMembers = teamMembers;
   }
 
   // Fetch reports for the current month

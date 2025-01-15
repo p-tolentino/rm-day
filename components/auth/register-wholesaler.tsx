@@ -54,13 +54,13 @@ export const registerSchema = z.object({
     .optional(),
   idNum: z.string(),
   subTeam: z.string(),
-  sponsor: z.string(),
+  sponsor: z.string().optional(),
   firstName: z.string(),
   middleName: z.string().optional(),
   lastName: z.string(),
-  profession: z.string(),
+  profession: z.string().optional(),
   // dob: z.coerce.date(),
-  location: z.tuple([z.string(), z.string().optional()]),
+  location: z.tuple([z.string(), z.string().optional()]).optional(),
   email: z.string(),
 });
 

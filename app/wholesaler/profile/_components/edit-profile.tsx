@@ -24,13 +24,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Pencil } from "lucide-react";
-import { registerSchema } from "@/components/auth/register-wholesaler";
 import { updateWholesalerInfo } from "@/actions/wholesaler";
 import { toast } from "sonner";
 // import { EnhancedDatePicker } from "@/components/ui/enhanced-date-picker";
 import LocationSelector from "@/components/ui/location-input";
 import ComboBoxSelector from "@/components/ui/combo-box-input";
-import { subTeams } from "@/utils/subteams";
 
 interface EditProfileDialogProps {
   profile: any;
@@ -44,6 +42,16 @@ export const convertToPhilippineTime = (date: Date): Date => {
   return new Date(date.getTime() + totalOffset);
 };
 
+export const editProfileSchema = z.object({
+  idNum: z.string(),
+  sponsor: z.string(),
+  firstName: z.string(),
+  middleName: z.string().optional(),
+  lastName: z.string(),
+  profession: z.string(),
+  location: z.tuple([z.string(), z.string()]),
+});
+
 export function EditProfileDialog({
   profile,
   wholesalers,
@@ -51,24 +59,20 @@ export function EditProfileDialog({
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<z.infer<typeof registerSchema>>({
-    resolver: zodResolver(registerSchema),
+  const form = useForm<z.infer<typeof editProfileSchema>>({
+    resolver: zodResolver(editProfileSchema),
     defaultValues: {
-      // dob: convertToPhilippineTime(new Date(profile.dob)),
-      // email: profile.email,
-      firstName: profile.firstName,
       idNum: profile.idNum,
+      firstName: profile.firstName,
       lastName: profile.lastName,
       middleName: profile.middleName || " ",
       profession: profile.profession,
       sponsor: profile.sponsor,
-      subTeam: profile.subTeam,
-      location: [profile.country, profile.city],
-      avatar: profile.avatar,
+      location: [profile.country || "", profile.city || ""],
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof registerSchema>) => {
+  const onSubmit = async (values: z.infer<typeof editProfileSchema>) => {
     setIsLoading(true); // Start loading
 
     try {
@@ -168,7 +172,7 @@ export function EditProfileDialog({
 
             {/* Profession, Date of Birth, Sponsor */}
             <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-4">
+              <div className="col-span-6">
                 <FormField
                   control={form.control}
                   name="profession"
@@ -188,8 +192,8 @@ export function EditProfileDialog({
                 />
               </div>
 
-              <div className="col-span-4">
-                {/* <FormField
+              {/* <div className="col-span-4">
+                 <FormField
                   control={form.control}
                   name="dob"
                   render={({ field }) => (
@@ -215,9 +219,9 @@ export function EditProfileDialog({
                       <FormMessage />
                     </FormItem>
                   )}
-                /> */}
+                /> 
 
-                <FormField
+                 <FormField
                   control={form.control}
                   name="subTeam"
                   render={({ field }) => (
@@ -235,10 +239,10 @@ export function EditProfileDialog({
                       <FormMessage />
                     </FormItem>
                   )}
-                />
-              </div>
+                /> 
+              </div> */}
 
-              <div className="col-span-4">
+              <div className="col-span-6">
                 <FormField
                   control={form.control}
                   name="sponsor"

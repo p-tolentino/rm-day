@@ -5,6 +5,7 @@ import * as z from "zod";
 import { registerSchema } from "@/components/auth/register-wholesaler";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import { editProfileSchema } from "@/app/wholesaler/profile/_components/edit-profile";
 
 const cleanText = (text: string | null | undefined): string => {
   return (text || "").trim().toLocaleUpperCase();
@@ -64,8 +65,8 @@ export async function registerWholesalerInfo(
     firstName: cleanText(firstName),
     middleName: middleName ? cleanText(middleName) : null,
     lastName: cleanText(lastName),
-    country: location[0],
-    city: location[1],
+    country: location && location[0],
+    city: location && location[1],
     profession: cleanText(profession),
     sponsor,
     subTeam,
@@ -100,7 +101,7 @@ export async function registerWholesalerInfo(
 }
 
 export async function updateWholesalerInfo(
-  values: z.infer<typeof registerSchema>
+  values: z.infer<typeof editProfileSchema>
 ) {
   const supabase = await createClient();
 
@@ -114,23 +115,19 @@ export async function updateWholesalerInfo(
 
   const {
     // dob,
-    // email,
-    firstName,
     idNum,
+    firstName,
     lastName,
     location,
     middleName,
     profession,
     sponsor,
-    subTeam,
-    avatar,
   } = values;
 
   const { data, error } = await supabase
     .from("wholesalers")
     .update({
       // dob: formatDate(dob),
-      // email: email.trim().toLocaleLowerCase(),
       firstName: cleanText(firstName),
       middleName: middleName ? cleanText(middleName) : null,
       lastName: cleanText(lastName),
@@ -138,8 +135,6 @@ export async function updateWholesalerInfo(
       city: location[1],
       profession: cleanText(profession),
       sponsor,
-      subTeam,
-      avatar,
     })
     .eq("idNum", idNum);
 

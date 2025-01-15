@@ -137,19 +137,21 @@ const createColumns = (
     ),
   },
   {
-    accessorKey: "subTeam",
-    header: "Subteam",
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
-  },
-  {
-    accessorKey: "sponsor",
-    header: "Sponsor",
-  },
-  {
     accessorKey: "idNum",
     header: "ID Number",
+  },
+  {
+    accessorKey: "picture",
+    header: "Picture",
+    cell: ({ row }) => (
+      <ImageViewer
+        title="Picture"
+        imageUrl={
+          row.original.avatar ||
+          "https://knetic.org.uk/wp-content/uploads/2020/07/Pcture-Placeholder.png"
+        }
+      />
+    ),
   },
   {
     accessorKey: "firstName",
@@ -243,17 +245,8 @@ const createColumns = (
     },
   },
   {
-    accessorKey: "picture",
-    header: "Picture",
-    cell: ({ row }) => (
-      <ImageViewer
-        title="Picture"
-        imageUrl={
-          row.original.avatar ||
-          "https://knetic.org.uk/wp-content/uploads/2020/07/Pcture-Placeholder.png"
-        }
-      />
-    ),
+    accessorKey: "sponsor",
+    header: "Sponsor",
   },
   {
     accessorKey: "createdBy",

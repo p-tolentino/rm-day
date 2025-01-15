@@ -348,8 +348,8 @@ export function AppSidebar({
           {incompleteAccountSetup && (
             <TooltipContent>
               <p>
-                You need to setup your account: Birthdate, Location, Profession,
-                Sponsor and Subteam.
+                You need to setup your account: Full Name, Profession, Sponsor
+                and Location.
               </p>
             </TooltipContent>
           )}
@@ -367,11 +367,7 @@ export function AppSidebar({
                     "flex align-middle items-center space-x-2 transition-all w-[90%]"
                   }
                   onClick={() => setOpenSubteamReportDialog(true)}
-                  disabled={
-                    incompleteAccountSetup ||
-                    !form.watch("responses") ||
-                    hasSubmitted
-                  }
+                  disabled={incompleteAccountSetup || !form.watch("responses")}
                 >
                   <FileUser className="w-4 h-4" />
                   <span>Members Income Reports</span>
@@ -424,8 +420,8 @@ export function AppSidebar({
                           {incompleteAccountSetup && (
                             <TooltipContent>
                               <p>
-                                You need to setup your account: Birthdate,
-                                Location, Profession, Sponsor and Subteam.
+                                You need to setup your account: Full Name,
+                                Profession, Sponsor and Location.
                               </p>
                             </TooltipContent>
                           )}

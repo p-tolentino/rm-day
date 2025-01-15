@@ -140,27 +140,21 @@ const createColumns = (
     ),
   },
   {
-    accessorKey: "subTeam",
-    header: "Subteam",
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
-  },
-  {
-    accessorKey: "sponsor",
-    header: "Sponsor",
-  },
-  {
     accessorKey: "idNum",
     header: "ID Number",
   },
   {
-    accessorKey: "role",
-    header: "Role",
-    cell: ({ row }) => {
-      const user = row.original;
-      return <RoleToggle userId={user.idNum} initialRole={user.role} />;
-    },
+    accessorKey: "picture",
+    header: "Picture",
+    cell: ({ row }) => (
+      <ImageViewer
+        title="Picture"
+        imageUrl={
+          row.original.avatar ||
+          "https://knetic.org.uk/wp-content/uploads/2020/07/Pcture-Placeholder.png"
+        }
+      />
+    ),
   },
   {
     accessorKey: "firstName",
@@ -173,6 +167,13 @@ const createColumns = (
   {
     accessorKey: "lastName",
     header: "Last Name",
+  },
+  {
+    accessorKey: "subTeam",
+    header: "Subteam",
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
   // {
   //   accessorKey: "dob",
@@ -254,23 +255,21 @@ const createColumns = (
     },
   },
   {
-    accessorKey: "picture",
-    header: "Picture",
-    cell: ({ row }) => (
-      <ImageViewer
-        title="Picture"
-        imageUrl={
-          row.original.avatar ||
-          "https://knetic.org.uk/wp-content/uploads/2020/07/Pcture-Placeholder.png"
-        }
-      />
-    ),
+    accessorKey: "sponsor",
+    header: "Sponsor",
   },
   {
     accessorKey: "createdBy",
     header: "Created By",
   },
-
+  {
+    accessorKey: "role",
+    header: "Role",
+    cell: ({ row }) => {
+      const user = row.original;
+      return <RoleToggle userId={user.idNum} initialRole={user.role} />;
+    },
+  },
   // TODO: ACTIONS
   {
     id: "actions",

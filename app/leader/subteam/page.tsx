@@ -29,7 +29,7 @@ export default async function WholesalerData() {
   return (
     <>
       <Header
-        pageTitle={metadata.title}
+        pageTitle={`${metadata.title} (${subteam[0].subTeam})`}
         wholesalers={formattedWholesalers}
         role={role}
       />
