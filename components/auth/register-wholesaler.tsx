@@ -102,7 +102,9 @@ export default function RegisterWholesalerForm({
       const wholesalerResponse = await registerWholesalerInfo(values);
 
       if (!wholesalerResponse.success) {
-        toast.warning("Failed to register wholesaler");
+        toast.warning(
+          `Failed to register wholesaler: ${wholesalerResponse.message}`
+        );
         return;
       }
 

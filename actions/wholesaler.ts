@@ -79,6 +79,14 @@ export async function registerWholesalerInfo(
 
   if (error) {
     console.log(error);
+
+    if (error.details.includes("already exists")) {
+      return {
+        success: false,
+        message: "ID Number is already registered.",
+        data,
+      };
+    }
     return { success: false, message: error.message, data };
   }
 
