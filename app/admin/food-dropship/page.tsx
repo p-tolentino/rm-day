@@ -1,8 +1,10 @@
 import Header from "@/components/ui/header";
 import { FoodDataTable } from "./_components/food-table";
+import { CategoryTable } from "./_components/category-table";
 import type { Metadata } from "next";
 import { getAllCategories, getAllProducts } from "@/data/food";
 import { getCurrentRole } from "@/data/wholesalers";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const metadata: Metadata = {
   title: "Food Dropshipping",
@@ -10,12 +12,6 @@ export const metadata: Metadata = {
 
 export default async function FoodsPage() {
   const categories = await getAllCategories();
-
-  const formattedCategories = categories
-    .map((category) => {
-      return category.name;
-    })
-    .sort();
 
   const products = await getAllProducts();
 
@@ -25,11 +21,25 @@ export default async function FoodsPage() {
     <>
       <Header
         pageTitle={metadata.title}
-        categories={formattedCategories}
+        categories={categories.map((category) => category.name).sort()}
         role={role}
       />
       <div className="container mx-auto py-10">
-        <FoodDataTable data={products} categories={formattedCategories} />
+        <Tabs defaultValue="products" className="w-full">
+          <TabsList className="grid w-1/2 grid-cols-2">
+            <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="categories">Categories</TabsTrigger>
+          </TabsList>
+          <TabsContent value="products">
+            <FoodDataTable
+              data={products}
+              categories={categories.map((category) => category.name).sort()}
+            />
+          </TabsContent>
+          <TabsContent value="categories">
+            <CategoryTable categories={categories} />
+          </TabsContent>
+        </Tabs>
       </div>
     </>
   );
