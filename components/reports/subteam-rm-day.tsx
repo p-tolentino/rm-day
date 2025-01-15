@@ -28,14 +28,20 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Calculator, LoaderCircle } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { FoodCalculator } from "./food-calculator";
+import {
+  getNonSubmittingSubteamMembers,
+  getWholesalerName,
+  getWholesalerRecords,
+} from "@/data/wholesalers";
 import { createRmdReport } from "@/actions/report";
 import { uploadFile } from "@/actions/upload";
+import ComboBoxSelector from "../ui/combo-box-input";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ["image/jpg", "image/jpeg", "image/png"];
 
 export const reportSchema = z.object({
-  idNumber: z.string().optional(),
+  idNumber: z.string(),
   fullName: z.string().optional(),
   monthlyWholesale: z.number(),
   monthlyIncome: z.string(),
@@ -50,9 +56,8 @@ export const reportSchema = z.object({
     .refine(
       (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
       "Only .jpg, .jpeg, .png formats are supported"
-    )
-    .optional(),
-  ssCMIRUrl: z.string().optional(),
+    ),
+  ssCMIRUrl: z.string(),
   mmppSummaryReport: z.string(),
   ssMSR: z
     .custom<File[]>()
@@ -64,24 +69,21 @@ export const reportSchema = z.object({
     .refine(
       (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
       "Only .jpg, .jpeg, .png formats are supported"
-    )
-    .optional(),
-  ssMSRUrl: z.string().optional(),
+    ),
+  ssMSRUrl: z.string(),
   consolidatedMonthlyFoodIncome: z.number(),
   agree: z.boolean(),
 });
 
 // TODO: TYPE SAFETY FOR DATA TYPES
-const RMDayForm = ({
+const SubteamMemberForm = ({
   acceptReports,
-  user,
   categories,
   products,
   onFormSubmitSuccess,
   isDialogOpen,
 }: {
   acceptReports: boolean;
-  user: any;
   categories?: any;
   products?: any;
   onFormSubmitSuccess: () => void;
@@ -90,6 +92,8 @@ const RMDayForm = ({
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingFetch, setIsLoadingFetch] = useState(false);
+  const [subteamMembers, setSubteamMembers] = useState<any[]>([]);
 
   const [foodCalculatorValues, setFoodCalculatorValues] = useState<
     { id: string; name: string; points: number; quantity: string }[]
@@ -98,18 +102,43 @@ const RMDayForm = ({
   const form = useForm<z.infer<typeof reportSchema>>({
     resolver: zodResolver(reportSchema),
     defaultValues: {
-      idNumber: user.idNum || "",
-      fullName:
-        `${user.firstName} ${user.middleName && user.middleName[0]}${
-          user.middleName && `. `
-        }${user.lastName}` || "",
       consolidatedMonthlyIncome: "0",
       mmppSummaryReport: "0",
       consolidatedMonthlyFoodIncome: 0,
-      monthlyIncome: user.totalIncome?.toString() || 0,
-      monthlyWholesale: user.totalWholesale || 0,
+      monthlyIncome: "0",
+      monthlyWholesale: 0,
     },
   });
+
+  const fetchSubteamMembers = async () => {
+    setIsLoading(true);
+    setIsLoadingFetch(true);
+
+    try {
+      const nonSubmittingMembers = await getNonSubmittingSubteamMembers();
+
+      if (!nonSubmittingMembers || nonSubmittingMembers.length === 0) {
+        console.log(
+          "No subteam members found who haven't submitted this month"
+        );
+        return;
+      }
+
+      setSubteamMembers(nonSubmittingMembers || []);
+    } catch (error) {
+      console.error("Error fetching subteam members:", error);
+      toast.error("Failed to fetch subteam members");
+    } finally {
+      setIsLoading(false);
+      setIsLoadingFetch(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isDialogOpen) {
+      fetchSubteamMembers();
+    }
+  }, [isDialogOpen]);
 
   const onSubmit = async (values: z.infer<typeof reportSchema>) => {
     try {
@@ -159,11 +188,57 @@ const RMDayForm = ({
     }
   };
 
-  useEffect(() => {
-    setIsLoading(true);
+  const wholesalerId = form.watch(`idNumber`);
 
-    setTimeout(() => setIsLoading(false), 500);
-  }, [isDialogOpen]);
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    const fetchWholesaler = async () => {
+      setIsLoading(true);
+      try {
+        if (!wholesalerId) {
+          form.setValue("fullName", "Please choose Wholesaler ID");
+          return;
+        }
+        const wholesaler = await getWholesalerName(wholesalerId);
+        if (wholesaler.name) {
+          form.setValue("fullName", wholesaler.name);
+        } else {
+          form.setValue("fullName", "No wholesaler data found.");
+        }
+      } catch (error) {
+        console.error("Error fetching wholesaler:", error);
+        form.setValue("fullName", "Error fetching wholesaler data.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (wholesalerId) {
+      timeoutId = setTimeout(fetchWholesaler, 300);
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [wholesalerId, form]);
+
+  const handleComboboxChange = async (value: string) => {
+    if (!value) {
+      form.setValue("monthlyIncome", "0");
+      form.setValue("monthlyWholesale", 0);
+    }
+    const wholesalerData = await getWholesalerRecords(value);
+    // Check if the response contains an error
+    if ("error" in wholesalerData) {
+      console.log(wholesalerData.error); // Show error message
+      return;
+    }
+
+    // If no error, set the form values
+    form.setValue("monthlyIncome", wholesalerData.totalIncome.toString());
+    form.setValue("monthlyWholesale", wholesalerData.totalWholesale);
+  };
 
   return (
     <Form {...form}>
@@ -174,16 +249,16 @@ const RMDayForm = ({
         }}
         className="space-y-3 max-w-3xl mx-auto py-10"
       >
-        {/* <div className="grid grid-cols-12 gap-4">
+        <div className="grid grid-cols-12 gap-4">
           <div className="col-span-6">
             <FormField
               control={form.control}
               name="idNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Wholesaler ID</FormLabel>
+                  <FormLabel>Subteam Member ID</FormLabel>
                   <FormControl>
-                    {isLoading ? (
+                    {isLoadingFetch ? (
                       <div className="flex items-center justify-start h-9 w-full bg-background border opacity-50 rounded-md px-3">
                         <LoaderCircle
                           className="animate-spin"
@@ -194,10 +269,17 @@ const RMDayForm = ({
                         />
                       </div>
                     ) : (
-                      <Input placeholder="" type="text" {...field} disabled />
+                      <ComboBoxSelector
+                        disabled={isLoading || isLoadingFetch}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          handleComboboxChange(value || "");
+                        }}
+                        itemName="subteam member"
+                        items={subteamMembers || []}
+                      />
                     )}
                   </FormControl>
-
                   <FormMessage />
                 </FormItem>
               )}
@@ -238,7 +320,7 @@ const RMDayForm = ({
                           isLoading
                             ? "Loading..."
                             : !wholesalerId
-                            ? "Please input Wholesaler ID"
+                            ? "Please choose Wholesaler ID"
                             : field.value
                         }
                       />
@@ -250,7 +332,7 @@ const RMDayForm = ({
               )}
             />
           </div>
-        </div> */}
+        </div>
 
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-6">
@@ -277,7 +359,7 @@ const RMDayForm = ({
                         type="number"
                         {...field}
                         min={0}
-                        disabled={isLoading}
+                        disabled={!wholesalerId}
                         onChange={(e) =>
                           form.setValue(
                             "monthlyWholesale",
@@ -318,7 +400,7 @@ const RMDayForm = ({
                         min={0}
                         type="number"
                         step={0.01}
-                        disabled={isLoading}
+                        disabled={!wholesalerId}
                       />
                     )}
                   </FormControl>
@@ -355,7 +437,7 @@ const RMDayForm = ({
                         min={0}
                         type="number"
                         step={0.01}
-                        disabled={isLoading}
+                        disabled={!wholesalerId}
                       />
                     )}
                   </FormControl>
@@ -398,7 +480,7 @@ const RMDayForm = ({
                           }
                         }}
                         required
-                        disabled={isLoading}
+                        disabled={!wholesalerId}
                       />
                     )}
                   </FormControl>
@@ -435,7 +517,7 @@ const RMDayForm = ({
                         {...field}
                         min={0}
                         step={0.01}
-                        disabled={isLoading}
+                        disabled={!wholesalerId}
                       />
                     )}
                   </FormControl>
@@ -478,7 +560,7 @@ const RMDayForm = ({
                           }
                         }}
                         required
-                        disabled={isLoading}
+                        disabled={!wholesalerId}
                       />
                     )}
                   </FormControl>
@@ -523,7 +605,7 @@ const RMDayForm = ({
                       type="button"
                       className={"flex align-middle items-center space-x-2"}
                       onClick={() => setOpen(true)}
-                      disabled={isLoading}
+                      disabled={!wholesalerId}
                     >
                       <Calculator className="w-4 h-4" />
                       <span className="hidden sm:inline">Food Calculator</span>
@@ -571,11 +653,11 @@ const RMDayForm = ({
                   checked={field.value}
                   onCheckedChange={field.onChange}
                   required
-                  disabled={isLoading}
+                  disabled={!wholesalerId}
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
-                <FormLabel className={`${isLoading && "opacity-50"}`}>
+                <FormLabel className={`${!wholesalerId && "opacity-50"}`}>
                   I have double-checked all the details I filled out and I
                   confirm that my submission is correct and accurate.
                 </FormLabel>
@@ -585,7 +667,10 @@ const RMDayForm = ({
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={!acceptReports || isLoading}>
+        <Button
+          type="submit"
+          disabled={!acceptReports || !wholesalerId || isLoading}
+        >
           {isLoading ? (
             <LoaderCircle
               className="animate-spin"
@@ -603,4 +688,4 @@ const RMDayForm = ({
   );
 };
 
-export default RMDayForm;
+export default SubteamMemberForm;

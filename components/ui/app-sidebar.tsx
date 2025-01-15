@@ -45,6 +45,7 @@ import {
   FileInput,
   LogOut,
   FileText,
+  FileUser,
 } from "lucide-react";
 
 import Image from "next/image";
@@ -67,6 +68,7 @@ import RMDayForm from "../reports/rm-day";
 import ChangePasswordDialog from "../auth/change-password";
 import { useRouter } from "next/navigation";
 import { ChangeEmailDialog } from "../auth/change-email";
+import SubteamMemberForm from "../reports/subteam-rm-day";
 
 const adminLinks = {
   navMain: [
@@ -216,7 +218,8 @@ export function AppSidebar({
   hasSubmitted: boolean;
   incompleteAccountSetup: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [openReportDialog, setOpenReportDialog] = useState(false);
+  const [openSubteamReportDialog, setOpenSubteamReportDialog] = useState(false);
 
   const supabase = createClient();
   const router = useRouter();
@@ -229,55 +232,7 @@ export function AppSidebar({
       : memberLinks;
 
   // Supabase Auth listener
-  useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event) => {
-        if (event === "USER_UPDATED") {
-          const {
-            data: { user },
-          } = await supabase.auth.getUser();
-
-          console.log(user?.user_metadata);
-
-          if (user?.email) {
-            // Retrieve the old and new emails from the user's metadata
-            const oldEmail = user.user_metadata?.oldEmail;
-            const newEmail = user.user_metadata?.newEmail;
-
-            if (oldEmail && newEmail && newEmail === user.email) {
-              // Update the `wholesalers` table using the old email
-              const { error } = await supabase
-                .from("wholesalers")
-                .update({ email: newEmail })
-                .eq("email", oldEmail);
-
-              if (error) {
-                console.error(
-                  "Failed to update email in wholesalers table:",
-                  error
-                );
-                toast.error("Failed to update your email in the database.");
-              } else {
-                toast.success("Your email has been updated successfully.");
-
-                // Clear the stored emails from metadata
-                await supabase.auth.updateUser({
-                  data: { oldEmail: null, newEmail: null },
-                });
-              }
-            } else {
-              console.error("Old or new email not found in metadata.");
-              toast.error("Failed to retrieve email data for update.");
-            }
-          }
-        }
-      }
-    );
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, [supabase]);
+  useEffect(() => {}, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -287,7 +242,8 @@ export function AppSidebar({
   });
 
   const handleFormSubmitSuccess = () => {
-    setOpen(false);
+    setOpenReportDialog(false);
+    setOpenSubteamReportDialog(false);
   };
 
   const handleLogout = async () => {
@@ -339,14 +295,17 @@ export function AppSidebar({
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="flex justify-center pt-4">
-              <Dialog open={open} onOpenChange={setOpen}>
+              <Dialog
+                open={openReportDialog}
+                onOpenChange={setOpenReportDialog}
+              >
                 <DialogTrigger asChild>
                   <Button
                     type="button"
                     className={
-                      "flex align-middle items-center space-x-2 transition-all"
+                      "flex align-middle items-center space-x-2 transition-all w-[90%]"
                     }
-                    onClick={() => setOpen(true)}
+                    onClick={() => setOpenReportDialog(true)}
                     disabled={
                       incompleteAccountSetup ||
                       !form.watch("responses") ||
@@ -354,26 +313,26 @@ export function AppSidebar({
                     }
                   >
                     <FileInput className="w-4 h-4" />
-                    <span>Submit RM Day Report</span>
+                    <span>Your Income Report </span>
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-[425px] md:max-w-3xl">
                   <DialogHeader>
                     <DialogTitle className="flex items-center space-x-2">
                       <FileInput className="w-6 h-6" />
-                      <span>Submit RM Day Report</span>
+                      <span>Your Income Report</span>
                     </DialogTitle>
                   </DialogHeader>
 
                   <div>
                     <Separator />
                     <RMDayForm
-                      userRole={userRole}
                       acceptReports={acceptReports}
                       user={user}
                       categories={categories}
                       products={products}
                       onFormSubmitSuccess={handleFormSubmitSuccess}
+                      isDialogOpen={openReportDialog}
                     />
                   </div>
                 </DialogContent>
@@ -395,6 +354,51 @@ export function AppSidebar({
             </TooltipContent>
           )}
         </Tooltip>
+        {(userRole === "ADMIN" || userRole === "LEADER") && (
+          <div className="flex justify-center pt-2">
+            <Dialog
+              open={openSubteamReportDialog}
+              onOpenChange={setOpenSubteamReportDialog}
+            >
+              <DialogTrigger asChild>
+                <Button
+                  type="button"
+                  className={
+                    "flex align-middle items-center space-x-2 transition-all w-[90%]"
+                  }
+                  onClick={() => setOpenSubteamReportDialog(true)}
+                  disabled={
+                    incompleteAccountSetup ||
+                    !form.watch("responses") ||
+                    hasSubmitted
+                  }
+                >
+                  <FileUser className="w-4 h-4" />
+                  <span>Members Income Reports</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-[425px] md:max-w-3xl">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center space-x-2">
+                    <FileUser className="w-6 h-6" />
+                    <span>Members Income Reports</span>
+                  </DialogTitle>
+                </DialogHeader>
+
+                <div>
+                  <Separator />
+                  <SubteamMemberForm
+                    acceptReports={acceptReports}
+                    categories={categories}
+                    products={products}
+                    onFormSubmitSuccess={handleFormSubmitSuccess}
+                    isDialogOpen={openSubteamReportDialog}
+                  />
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        )}
         {linksToUse.navMain.map((item) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>

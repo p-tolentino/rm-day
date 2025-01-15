@@ -52,7 +52,69 @@ export async function getSubteamWholesalers() {
     return [];
   }
 
+  console.log(subTeam);
+
   return subTeam;
+}
+
+export async function getNonSubmittingSubteamMembers() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user?.email) {
+    return [];
+  }
+
+  const { data: profile } = await supabase
+    .from("wholesalers")
+    .select("idNum, subTeam")
+    .eq("email", user.email)
+    .single();
+
+  if (!profile) {
+    return [];
+  }
+
+  const { data: subteamMembers, error } = await supabase
+    .from("wholesalers")
+    .select("idNum")
+    .eq("subTeam", profile.subTeam);
+
+  if (error || !subteamMembers) {
+    console.error("Error fetching subteam members:", error);
+    return [];
+  }
+
+  // Fetch reports for the current month
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+
+  const { data: reports, error: reportsError } = await supabase
+    .from("reports")
+    .select("wholesalerId, createdAt")
+    .gte("createdAt", new Date(currentYear, currentMonth, 1).toISOString())
+    .lt("createdAt", new Date(currentYear, currentMonth + 1, 1).toISOString());
+
+  if (reportsError) {
+    console.error("Error fetching reports:", reportsError);
+    return [];
+  }
+
+  // Get the idNum of members who have submitted this month
+  const submittingMembers = new Set(
+    reports.map((report) => report.wholesalerId)
+  );
+
+  // Filter out members who have already submitted
+  const nonSubmittingMembers = subteamMembers
+    .filter((member) => !submittingMembers.has(member.idNum)) // Exclude submitting members
+    .filter((member) => member.idNum !== profile.idNum); // Exclude current user
+
+  return nonSubmittingMembers.map((member) => member.idNum).sort();
 }
 
 export const getCurrentRole = async () => {
@@ -136,4 +198,24 @@ export const getUserLocations = async () => {
   }
 
   return users;
+};
+
+export const getWholesalerRecords = async (idNum: string | undefined) => {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data: profile, error } = await supabase
+    .from("wholesalers")
+    .select("totalWholesale, totalIncome")
+    .eq("idNum", idNum)
+    .single();
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return profile;
 };
