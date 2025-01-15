@@ -93,9 +93,9 @@ export function LoginForm({
               aria-controls="password"
             >
               {isVisible ? (
-                <EyeOff size={16} strokeWidth={2} aria-hidden="true" />
-              ) : (
                 <Eye size={16} strokeWidth={2} aria-hidden="true" />
+              ) : (
+                <EyeOff size={16} strokeWidth={2} aria-hidden="true" />
               )}
             </button>
           </div>
