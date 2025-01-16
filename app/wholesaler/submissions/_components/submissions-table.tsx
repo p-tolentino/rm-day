@@ -87,6 +87,7 @@ export interface UserLocation {
 export type Report = {
   id: string;
   createdAt: string;
+  updatedAt: string;
   subTeam: string;
   fullName: string;
   wholesalerId: string;
@@ -255,21 +256,21 @@ const createColumns = (
     header: "Last Updated By",
   },
   {
-    accessorKey: "createdAt",
+    accessorKey: "updatedAt",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Updated At
+          Last Updated At
           <ArrowUpDown />
         </Button>
       );
     },
     cell: ({ row }) => (
       <div className="px-2">
-        {new Date(row.getValue("createdAt")).toLocaleString()}
+        {new Date(row.getValue("updatedAt")).toLocaleString()}
       </div>
     ),
   },

@@ -4,12 +4,9 @@ import * as z from "zod";
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import { getCurrentRole } from "@/data/wholesalers";
 import { reportSchema } from "@/components/reports/rm-day";
-import { uploadFile } from "./upload";
 import { BLC_TITLES, WBC_TITLES } from "@/utils/titles";
 import { editReportSchema } from "@/components/reports/edit-report";
-import { convertToPhilippineTime } from "@/app/wholesaler/profile/_components/edit-profile";
 
 export async function createRmdReport(values: z.infer<typeof reportSchema>) {
   const supabase = await createClient();
@@ -206,6 +203,7 @@ export async function updateRmdReport(
   const { data: reportData, error: reportError } = await supabase
     .from("reports")
     .update({
+      updatedAt: new Date().toISOString(),
       createdBy: `${currentUser?.firstName} ${
         currentUser?.middleName && currentUser?.middleName[0]
       }${currentUser?.middleName && `. `}${currentUser?.lastName}`,
