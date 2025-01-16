@@ -4,7 +4,7 @@
 
 import { Separator } from "@/components/ui/separator";
 // import { AlertModal } from "@/components/modals/alert-modal";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +29,6 @@ import EditReportForm from "@/components/reports/edit-report";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
@@ -43,40 +42,31 @@ export const CellAction: React.FC<CellActionProps> = ({
   report,
   acceptReports,
 }) => {
-  const [isPending, startTransition] = useTransition();
-
-  const [open, setOpen] = useState(false);
+  // const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditForm, setOpenEditForm] = useState(false);
 
-  const onAssign = async (id: string) => {};
+  // const onDelete = async (id: string) => {
+  //   startTransition(() => {
+  //     console.log("TODO: Delete user");
+  //     setOpen(false);
+  //     // deleteProperty(id)
+  //     //   .then((data) => {
+  //     //     if (data.error) {
+  //     //       console.log(data.error);
+  //     //     }
 
-  const onCopy = (id: string) => {
-    navigator.clipboard.writeText(id);
-    console.log("Property ID copied to the clipboard.");
-  };
-
-  const onDelete = async (id: string) => {
-    startTransition(() => {
-      console.log("TODO: Delete user");
-      setOpen(false);
-      // deleteProperty(id)
-      //   .then((data) => {
-      //     if (data.error) {
-      //       console.log(data.error);
-      //     }
-
-      //     if (data.success) {
-      //       update();
-      //       setOpen(false);
-      //       router.refresh();
-      //       console.log(data.success);
-      //     }
-      //   })
-      //   .catch(() => {
-      //     console.log("Something went wrong.");
-      //   });
-    });
-  };
+  //     //     if (data.success) {
+  //     //       update();
+  //     //       setOpen(false);
+  //     //       router.refresh();
+  //     //       console.log(data.success);
+  //     //     }
+  //     //   })
+  //     //   .catch(() => {
+  //     //     console.log("Something went wrong.");
+  //     //   });
+  //   });
+  // };
 
   return (
     // TODO DELETE MODAL FUNCTION:

@@ -356,7 +356,7 @@ export function SubteamReportDataTable({
 
   const columns = useMemo(
     () => createColumns(userLocations, acceptReports), // Pass the static rank array
-    [userLocations]
+    [userLocations, acceptReports]
   );
 
   const filteredData = useMemo(() => {
