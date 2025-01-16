@@ -15,28 +15,16 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
-  MoreHorizontal,
   RotateCcw,
   LoaderCircle,
   Search,
   X,
   Check,
   ChevronsUpDown,
-  Copy,
-  Pencil,
-  Trash2 as Trash,
   ArrowUpDown,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -85,6 +73,7 @@ import {
 import ImageViewer from "@/components/ui/image-viewer";
 import { Calendar } from "@/components/ui/calendar";
 import { subTeams } from "@/utils/subteams";
+import { CellAction } from "./cell-action";
 
 export type UserLocation = {
   idNum: string;
@@ -136,25 +125,6 @@ function formatCurrency(amount: number) {
 const createColumns = (
   userLocations: UserLocation[] | undefined
 ): ColumnDef<Report>[] => [
-  {
-    accessorKey: "createdAt",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Timestamp
-          <ArrowUpDown />
-        </Button>
-      );
-    },
-    cell: ({ row }) => (
-      <div className="px-2">
-        {new Date(row.getValue("createdAt")).toLocaleString()}
-      </div>
-    ),
-  },
   {
     accessorKey: "avatar",
     header: "Picture",
@@ -328,40 +298,32 @@ const createColumns = (
     accessorKey: "createdBy",
     header: "Submitted By",
   },
+  {
+    accessorKey: "createdAt",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Timestamp
+          <ArrowUpDown />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="px-2">
+        {new Date(row.getValue("createdAt")).toLocaleString()}
+      </div>
+    ),
+  },
   // TODO: ACTIONS
   {
     id: "actions",
     cell: ({ row }) => {
       const report = row.original;
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(report.id)}
-            >
-              <Copy />
-              Copy report ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Pencil />
-              Edit report
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Trash />
-              Delete report
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      return <CellAction report={report} />;
     },
   },
 ];

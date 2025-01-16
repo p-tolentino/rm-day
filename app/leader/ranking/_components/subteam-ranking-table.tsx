@@ -134,25 +134,6 @@ const createColumns = (
   userLocations: UserLocation[] | undefined
 ): ColumnDef<Report>[] => [
   {
-    accessorKey: "createdAt",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Timestamp
-          <ArrowUpDown />
-        </Button>
-      );
-    },
-    cell: ({ row }) => (
-      <div className="px-2">
-        {new Date(row.getValue("createdAt")).toLocaleString()}
-      </div>
-    ),
-  },
-  {
     accessorKey: "avatar",
     header: "Picture",
     cell: ({ row }) => (
@@ -318,6 +299,25 @@ const createColumns = (
   {
     accessorKey: "createdBy",
     header: "Submitted By",
+  },
+  {
+    accessorKey: "createdAt",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Timestamp
+          <ArrowUpDown />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="px-2">
+        {new Date(row.getValue("createdAt")).toLocaleString()}
+      </div>
+    ),
   },
   // TODO: ACTIONS
   {
