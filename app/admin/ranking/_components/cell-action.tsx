@@ -3,7 +3,6 @@
 "use client";
 
 import { Separator } from "@/components/ui/separator";
-// import { AlertModal } from "@/components/modals/alert-modal";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -32,6 +31,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
+import { AlertModal } from "@/components/modals/alert-modal";
+import { deleteProof, deleteRmdReport } from "@/actions/report";
 
 interface CellActionProps {
   report: any;
@@ -42,48 +43,65 @@ export const CellAction: React.FC<CellActionProps> = ({
   report,
   acceptReports,
 }) => {
-  // const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditForm, setOpenEditForm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // const onDelete = async (id: string) => {
-  //   startTransition(() => {
-  //     console.log("TODO: Delete user");
-  //     setOpen(false);
-  //     // deleteProperty(id)
-  //     //   .then((data) => {
-  //     //     if (data.error) {
-  //     //       console.log(data.error);
-  //     //     }
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
 
-  //     //     if (data.success) {
-  //     //       update();
-  //     //       setOpen(false);
-  //     //       router.refresh();
-  //     //       console.log(data.success);
-  //     //     }
-  //     //   })
-  //     //   .catch(() => {
-  //     //     console.log("Something went wrong.");
-  //     //   });
-  //   });
-  // };
+      const deleteCMIRResult = await deleteProof(report.ssCMIR, "ssCMIR");
+      if (deleteCMIRResult.success) {
+        toast.success("CMIR Proof deleted successfully");
+      } else {
+        toast.error(deleteCMIRResult.message);
+      }
 
+      const deleteMSRResult = await deleteProof(report.ssMSR, "ssMSR");
+      if (deleteMSRResult.success) {
+        toast.success("MSR Proof deleted successfully");
+      } else {
+        toast.error(deleteMSRResult.message);
+      }
+
+      const result = await deleteRmdReport(report.id);
+
+      if (result.success) {
+        toast.success(result.message);
+        setOpenDeleteModal(false);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to delete report");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
   return (
-    // TODO DELETE MODAL FUNCTION:
     <>
-      {/* <AlertModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={() => onDelete(report.id)}
-        loading={isPending}
-        title="Confirm Report Deletion"
+      <AlertModal
+        isOpen={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+        onConfirm={handleDelete}
+        loading={isDeleting}
+        title="Delete Report"
         description={
           <>
-            Are you sure you want to delete this report from the system? This
-            action cannot be undone.
+            <span>
+              Are you sure you want to delete {report.fullName}&apos;s report?{" "}
+              <span className="font-semibold">
+                This action cannot be undone.
+              </span>
+            </span>
           </>
         }
-      /> */}
+        actionLabel="Delete"
+        variant="danger"
+      />
+
       <Dialog open={openEditForm} onOpenChange={setOpenEditForm}>
         <DialogTrigger asChild>
           {/* <Button
@@ -109,11 +127,7 @@ export const CellAction: React.FC<CellActionProps> = ({
             <Separator />
             <EditReportForm
               report={report}
-              // TODO: FETCH ACCEPTING REPORTS OR NOT
-              acceptReports={true}
-              // TODO: FETCH CATEGORIES AND PRODUCTS IN FORM, IF DONE, UPDATE OTHER REPORT FORMS TO FETCH ENCAPSULATED AND NOT PASS PROPS
-              //   categories={categories}
-              //   products={products}
+              acceptReports={acceptReports}
               onFormSubmitSuccess={() => setOpenEditForm(false)}
               isDialogOpen={openEditForm}
             />
@@ -159,7 +173,10 @@ export const CellAction: React.FC<CellActionProps> = ({
             )}
           </Tooltip>
 
-          <DropdownMenuItem disabled>
+          <DropdownMenuItem
+            onClick={() => setOpenDeleteModal(true)}
+            className="text-destructive focus:text-destructive"
+          >
             <Trash />
             Delete report
           </DropdownMenuItem>

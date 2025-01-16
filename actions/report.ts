@@ -307,3 +307,32 @@ export async function deleteProof(url: string, bucket: string) {
     return { success: false, message: `Failed to delete ${bucket}` };
   }
 }
+
+export async function deleteRmdReport(reportId: string) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  try {
+    const { error: deleteError } = await supabase
+      .from("reports")
+      .delete()
+      .eq("id", reportId);
+
+    if (deleteError) {
+      return { success: false, message: deleteError.message };
+    }
+
+    revalidatePath("/", "layout");
+
+    return {
+      success: true,
+      message: "Report deleted successfully.",
+    };
+  } catch (error) {
+    console.error(`Delete report error:`, error);
+    return { success: false, message: `Failed to delete report` };
+  }
+}

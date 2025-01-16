@@ -120,7 +120,6 @@ const EditReportForm = ({
   const fetchCategoriesAndProducts = async () => {
     setIsLoading(true);
     setIsFetching(true);
-    const fetchingId = toast.loading("Loading food products...");
 
     try {
       const categories = await getAllCategories();
@@ -137,7 +136,6 @@ const EditReportForm = ({
       console.error("Error fetching categories & products:", error);
       toast.error("Failed to fetch categories & products");
     } finally {
-      toast.dismiss(fetchingId);
       setIsLoading(false);
       setIsFetching(false);
     }
@@ -559,7 +557,7 @@ const EditReportForm = ({
                       type="button"
                       className={"flex align-middle items-center space-x-2"}
                       onClick={() => setOpen(true)}
-                      disabled={isFetching}
+                      disabled={isFetching || isLoading}
                     >
                       <Calculator className="w-4 h-4" />
                       <span className="hidden sm:inline">Food Calculator</span>
@@ -607,6 +605,7 @@ const EditReportForm = ({
                   checked={field.value}
                   onCheckedChange={field.onChange}
                   required
+                  disabled={isLoading}
                 />
               </FormControl>
               <div className="space-y-1 leading-none">

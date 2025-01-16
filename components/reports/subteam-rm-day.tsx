@@ -58,8 +58,9 @@ export const reportSchema = z.object({
     .refine(
       (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
       "Only .jpg, .jpeg, .png formats are supported"
-    ),
-  ssCMIRUrl: z.string(),
+    )
+    .optional(),
+  ssCMIRUrl: z.string().optional(),
   mmppSummaryReport: z.string(),
   ssMSR: z
     .custom<File[]>()
@@ -71,8 +72,9 @@ export const reportSchema = z.object({
     .refine(
       (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
       "Only .jpg, .jpeg, .png formats are supported"
-    ),
-  ssMSRUrl: z.string(),
+    )
+    .optional(),
+  ssMSRUrl: z.string().optional(),
   consolidatedMonthlyFoodIncome: z.number(),
   agree: z.boolean(),
 });
