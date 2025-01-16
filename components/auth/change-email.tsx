@@ -1,4 +1,3 @@
-// components/ChangeEmailDialog.tsx
 "use client";
 
 import { useState } from "react";
@@ -71,7 +70,10 @@ export function ChangeEmailDialog({ currentEmail }: { currentEmail: string }) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Change Email Address</DialogTitle>
+          <DialogTitle className="flex items-center space-x-2">
+            <Mail size={18} />
+            <span>Change Email Address</span>
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

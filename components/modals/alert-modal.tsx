@@ -9,7 +9,7 @@ interface AlertModalProps {
   onClose: () => void;
   onConfirm: () => void;
   loading?: boolean;
-  title?: string;
+  title?: React.ReactNode;
   description?: React.ReactNode;
   actionLabel?: string;
   variant?: "danger" | "warning" | "default";
@@ -48,7 +48,9 @@ export const AlertModal: React.FC<AlertModalProps> = ({
 
   return (
     <Modal
-      title={title}
+      title={
+        <div className="flex justify-start items-center gap-2">{title}</div>
+      }
       description={
         <div className="flex justify-start items-center gap-2">
           {description}

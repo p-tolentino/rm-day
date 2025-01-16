@@ -6,7 +6,7 @@ import { getUserLocations } from "@/data/wholesalers";
 import { getDeadline } from "@/data/deadline";
 
 export const metadata: Metadata = {
-  title: "Monthly Ranking",
+  title: "My Income Reports",
 };
 
 export default async function UserSubmissions() {

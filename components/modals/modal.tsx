@@ -8,9 +8,10 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import React from "react";
+import { Separator } from "../ui/separator";
 
 interface ModalProps {
-  title: string;
+  title: React.ReactNode;
   description: React.ReactNode;
   isOpen: boolean;
   onClose: () => void;
@@ -35,6 +36,9 @@ export const Modal: React.FC<ModalProps> = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
+          <div className="py-2">
+            <Separator />
+          </div>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <div>{children}</div>

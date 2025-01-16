@@ -264,6 +264,66 @@ export async function updateWholesalerAvatar(idNum: string, avatarUrl: string) {
   }
 }
 
+export async function updateWholesalerId(currentId: string, newId: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("wholesalers")
+    .update({ idNum: newId })
+    .eq("idNum", currentId);
+
+  if (error) {
+    console.error("Error updating wholesaler ID:", error.message);
+    return { success: false, message: error.message };
+  }
+
+  const { error: updateReports } = await supabase
+    .from("reports")
+    .update({ wholesalerId: newId })
+    .eq("wholesalerId", currentId);
+
+  if (updateReports) {
+    console.error("Error updating wholesaler report:", updateReports.message);
+  }
+
+  revalidatePath("/admin/wholesalers");
+
+  return {
+    success: true,
+    message: "Wholesaler ID updated successfully for:",
+    data,
+  };
+}
+
+export async function deleteWholesaler(wholesalerId: string) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  try {
+    const { error: deleteError } = await supabase
+      .from("wholesalers")
+      .delete()
+      .eq("id", wholesalerId);
+
+    if (deleteError) {
+      return { success: false, message: deleteError.message };
+    }
+
+    revalidatePath("/", "layout");
+
+    return {
+      success: true,
+      message: "User deleted successfully.",
+    };
+  } catch (error) {
+    console.error(`Delete user error:`, error);
+    return { success: false, message: `Failed to delete user` };
+  }
+}
+
 export async function hasNotSetupAccount() {
   const supabase = await createClient();
 

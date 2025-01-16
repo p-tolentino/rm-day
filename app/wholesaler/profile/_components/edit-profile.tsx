@@ -23,12 +23,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Pencil } from "lucide-react";
+import { Pencil, UserRoundPen } from "lucide-react";
 import { updateWholesalerInfo } from "@/actions/wholesaler";
 import { toast } from "sonner";
 // import { EnhancedDatePicker } from "@/components/ui/enhanced-date-picker";
 import LocationSelector from "@/components/ui/location-input";
 import ComboBoxSelector from "@/components/ui/combo-box-input";
+import { Separator } from "@/components/ui/separator";
 
 interface EditProfileDialogProps {
   profile: any;
@@ -103,8 +104,14 @@ export function EditProfileDialog({
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Edit Personal Information</DialogTitle>
+          <DialogTitle className="flex items-center space-x-2">
+            <UserRoundPen />
+            <span>Edit Personal Information</span>
+          </DialogTitle>
         </DialogHeader>
+        <div className="py-2">
+          <Separator />
+        </div>
         <Form {...form}>
           <form className="space-y-4">
             {/* Full Name */}

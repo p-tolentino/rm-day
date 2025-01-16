@@ -15,27 +15,15 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
-  MoreHorizontal,
   RotateCcw,
   LoaderCircle,
   Search,
   X,
   Check,
   ChevronsUpDown,
-  Copy,
-  Pencil,
-  Trash2 as Trash,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -81,9 +69,8 @@ import {
 import ImageViewer from "@/components/ui/image-viewer";
 import { subTeams } from "@/utils/subteams";
 import { UserLocation } from "../../ranking/_components/ranking-table";
-import { Switch } from "@/components/ui/switch";
-import { toast } from "sonner";
 import { RoleToggle } from "./role-toggle";
+import { CellAction } from "./cell-action";
 
 function formatCurrency(amount: number) {
   if (isNaN(amount)) return "Invalid amount";
@@ -121,7 +108,8 @@ export type User = {
 };
 
 const createColumns = (
-  userLocations: UserLocation[] | undefined
+  userLocations: UserLocation[] | undefined,
+  role: string
 ): ColumnDef<User>[] => [
   {
     accessorKey: "rowNumber",
@@ -270,40 +258,12 @@ const createColumns = (
       return <RoleToggle userId={user.idNum} initialRole={user.role} />;
     },
   },
-  // TODO: ACTIONS
   {
     id: "actions",
     cell: ({ row }) => {
       const user = row.original;
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(user.id)}
-            >
-              <Copy />
-              Copy user ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Pencil />
-              Edit user
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Trash />
-              Delete user
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      return <CellAction user={user} />;
     },
   },
 ];
@@ -312,11 +272,13 @@ const createColumns = (
 interface WholesalerDataTableProps {
   data: User[];
   userLocations: UserLocation[] | undefined;
+  role: string;
 }
 
 export function WholesalerDataTable({
   data,
   userLocations,
+  role,
 }: WholesalerDataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -330,7 +292,10 @@ export function WholesalerDataTable({
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
 
-  const columns = useMemo(() => createColumns(userLocations), [userLocations]);
+  const columns = useMemo(
+    () => createColumns(userLocations, role),
+    [userLocations, role]
+  );
 
   useEffect(() => {
     if (globalFilter) {

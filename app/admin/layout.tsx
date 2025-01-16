@@ -13,6 +13,8 @@ import {
   hasNotSetupAccount,
   updateWholesalerEmail,
 } from "@/actions/wholesaler";
+import { UnauthorizedGate } from "@/components/auth/unauthorized-gate";
+import { IncompleteSetupGate } from "@/components/auth/incomplete-setup-gate";
 
 export default async function AdminLayout({
   children,
@@ -52,9 +54,12 @@ export default async function AdminLayout({
     hasNotSetupAccount(),
   ]);
 
-  if (role !== "ADMIN" || incompleteAccountSetup) {
-    // Redirect to appropriate page based on role
-    redirect("/wholesaler/profile");
+  if (role !== "ADMIN") {
+    return <UnauthorizedGate role="ADMIN" />;
+  }
+
+  if (incompleteAccountSetup) {
+    return <IncompleteSetupGate />;
   }
 
   return (

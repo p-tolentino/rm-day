@@ -15,27 +15,9 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  MoreHorizontal,
-  RotateCcw,
-  LoaderCircle,
-  Search,
-  X,
-  Copy,
-  Pencil,
-  Trash2 as Trash,
-  ArrowUpDown,
-} from "lucide-react";
+import { RotateCcw, LoaderCircle, Search, X, ArrowUpDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Table,

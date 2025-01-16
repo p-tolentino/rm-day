@@ -85,7 +85,10 @@ export default function ChangePasswordDialog() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Change Password</DialogTitle>
+          <DialogTitle className="flex items-center space-x-2">
+            <KeyRound size={18} />
+            <span>Change Password</span>
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

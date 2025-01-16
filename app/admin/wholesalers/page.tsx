@@ -36,6 +36,7 @@ export default async function WholesalerData() {
         <WholesalerDataTable
           data={wholesalers.filter((wholesaler) => wholesaler.role !== "ADMIN")}
           userLocations={userLocations}
+          role={role}
         />
       </div>
     </>

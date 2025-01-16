@@ -22,66 +22,42 @@ import {
 
 import {
   Copy,
-  FileUser,
+  IdCard,
   MoreHorizontal,
   Pencil,
   Trash,
-  Trash2,
+  UserRoundX,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import EditReportForm from "@/components/reports/edit-report";
-
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { AlertModal } from "@/components/modals/alert-modal";
-import { deleteProof, deleteRmdReport } from "@/actions/report";
+import { deleteWholesaler } from "@/actions/wholesaler";
+import ChangeWholesalerIdDialog from "@/components/auth/change-id";
 
 interface CellActionProps {
-  report: any;
-  acceptReports: boolean;
+  user: any;
 }
 
-export const CellAction: React.FC<CellActionProps> = ({
-  report,
-  acceptReports,
-}) => {
+export const CellAction: React.FC<CellActionProps> = ({ user }) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [openEditForm, setOpenEditForm] = useState(false);
+  const [openEditWholesalerId, setOpenEditWholesalerId] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
 
-      const deleteCMIRResult = await deleteProof(report.ssCMIR, "ssCMIR");
-      if (deleteCMIRResult.success) {
-        toast.success("CMIR Proof deleted successfully");
-      } else {
-        toast.error(deleteCMIRResult.message);
-      }
+      const deleteUserResult = await deleteWholesaler(user.id);
 
-      const deleteMSRResult = await deleteProof(report.ssMSR, "ssMSR");
-      if (deleteMSRResult.success) {
-        toast.success("MSR Proof deleted successfully");
-      } else {
-        toast.error(deleteMSRResult.message);
-      }
-
-      const result = await deleteRmdReport(report.id);
-
-      if (result.success) {
-        toast.success(result.message);
+      if (deleteUserResult.success) {
+        toast.success(deleteUserResult.message);
         setOpenDeleteModal(false);
       } else {
-        toast.error(result.message);
+        toast.error(deleteUserResult.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error("Failed to delete report");
+      toast.error("Failed to delete user");
     } finally {
       setIsDeleting(false);
     }
@@ -95,14 +71,17 @@ export const CellAction: React.FC<CellActionProps> = ({
         loading={isDeleting}
         title={
           <>
-            <Trash2 />
-            <span>Delete Report</span>
+            <UserRoundX />
+            <span>Delete User</span>
           </>
         }
         description={
           <>
             <span>
-              Are you sure you want to delete {report.fullName}&apos;s report?{" "}
+              Are you sure you want to delete{" "}
+              {`${user.firstName} ${user.middleName && user.middleName[0]}${
+                user.middleName && `. `
+              }${user.lastName} (${user.idNum})? `}
               <span className="font-semibold">
                 This action cannot be undone.
               </span>
@@ -113,22 +92,23 @@ export const CellAction: React.FC<CellActionProps> = ({
         variant="danger"
       />
 
-      <Dialog open={openEditForm} onOpenChange={setOpenEditForm}>
-        <DialogContent className="max-w-[425px] md:max-w-3xl">
+      <Dialog
+        open={openEditWholesalerId}
+        onOpenChange={setOpenEditWholesalerId}
+      >
+        <DialogContent className="max-w-[425px]">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2">
-              <FileUser className="w-6 h-6" />
-              <span>Edit Income Report for {report.fullName}</span>
+              <IdCard className="w-6 h-6" />
+              <span>Edit Wholesaler ID</span>
             </DialogTitle>
           </DialogHeader>
 
           <div>
             <Separator />
-            <EditReportForm
-              report={report}
-              acceptReports={acceptReports}
-              onFormSubmitSuccess={() => setOpenEditForm(false)}
-              isDialogOpen={openEditForm}
+            <ChangeWholesalerIdDialog
+              user={user}
+              onFormSubmitSuccess={() => setOpenEditWholesalerId(false)}
             />
           </div>
         </DialogContent>
@@ -144,40 +124,26 @@ export const CellAction: React.FC<CellActionProps> = ({
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() => {
-              navigator.clipboard.writeText(report.id);
-              toast.info("Report ID copied to clipboard");
+              navigator.clipboard.writeText(user.idNum);
+              toast.info("Wholesaler ID copied to clipboard");
             }}
           >
             <Copy />
-            Copy report ID
+            Copy user ID
           </DropdownMenuItem>
           <DropdownMenuSeparator />
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <DropdownMenuItem
-                  onClick={() => setOpenEditForm(true)}
-                  disabled={!acceptReports}
-                >
-                  <Pencil />
-                  Edit report
-                </DropdownMenuItem>
-              </div>
-            </TooltipTrigger>
-            {!acceptReports && (
-              <TooltipContent>
-                <p>Admin has disabled submitting reports</p>
-              </TooltipContent>
-            )}
-          </Tooltip>
+          <DropdownMenuItem onClick={() => setOpenEditWholesalerId(true)}>
+            <Pencil />
+            Edit user ID
+          </DropdownMenuItem>
 
           <DropdownMenuItem
             onClick={() => setOpenDeleteModal(true)}
             className="text-destructive focus:text-destructive"
           >
             <Trash />
-            Delete report
+            Delete user
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

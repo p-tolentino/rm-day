@@ -13,6 +13,8 @@ import {
   updateWholesalerEmail,
 } from "@/actions/wholesaler";
 import { getAllCategories, getAllProducts } from "@/data/food";
+import { UnauthorizedGate } from "@/components/auth/unauthorized-gate";
+import { IncompleteSetupGate } from "@/components/auth/incomplete-setup-gate";
 
 export default async function LeaderLayout({
   children,
@@ -52,9 +54,12 @@ export default async function LeaderLayout({
     hasNotSetupAccount(),
   ]);
 
-  if (role !== "LEADER" || incompleteAccountSetup) {
-    // Redirect to appropriate page based on role
-    redirect("/wholesaler/profile");
+  if (role !== "LEADER") {
+    return <UnauthorizedGate role="LEADER" />;
+  }
+
+  if (incompleteAccountSetup) {
+    return <IncompleteSetupGate />;
   }
 
   return (

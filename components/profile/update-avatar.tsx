@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LoaderCircle, PencilIcon } from "lucide-react";
+import { Image, LoaderCircle, PencilIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -103,7 +103,10 @@ export function AvatarUpdateButton({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Update Picture</DialogTitle>
+          <DialogTitle className="flex items-center space-x-2">
+            <Image className="w-6 h-6" />
+            <span>Update Picture</span>
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className=" space-y-8">
