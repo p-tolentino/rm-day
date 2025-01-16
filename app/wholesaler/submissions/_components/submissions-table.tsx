@@ -76,6 +76,7 @@ import {
 } from "@/utils/titles";
 import ImageViewer from "@/components/ui/image-viewer";
 import { Calendar } from "@/components/ui/calendar";
+import { CellAction } from "@/app/admin/ranking/_components/cell-action";
 
 export interface UserLocation {
   idNum: string;
@@ -108,6 +109,7 @@ export type Report = {
 interface MySubmissionsDataTableProps {
   data: Report[];
   userLocations: UserLocation[] | undefined;
+  acceptReports: boolean;
 }
 
 function formatCurrency(amount: number) {
@@ -121,62 +123,9 @@ function formatCurrency(amount: number) {
 }
 
 const createColumns = (
-  userLocations: UserLocation[] | undefined
+  userLocations: UserLocation[] | undefined,
+  acceptReports: boolean
 ): ColumnDef<Report>[] => [
-  {
-    accessorKey: "createdAt",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Timestamp
-          <ArrowUpDown />
-        </Button>
-      );
-    },
-    cell: ({ row }) => (
-      <div className="px-2">
-        {new Date(row.getValue("createdAt")).toLocaleString()}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "wholesale",
-    header: "Total Wholesale",
-  },
-  {
-    accessorKey: "bigLeagueTitle",
-    header: "BLC",
-    cell: ({ row }) => {
-      const wholesale = parseFloat(row.getValue("wholesale"));
-      return <div>{calculateBLC(wholesale)}</div>;
-    },
-    filterFn: (row, id, value) => {
-      const wholesale = parseFloat(row.getValue("wholesale"));
-      const title = calculateBLC(wholesale);
-      return value.includes(title);
-    },
-  },
-  {
-    accessorKey: "income",
-    header: "Total Income",
-    cell: ({ row }) => <div>{formatCurrency(row.getValue("income"))}</div>,
-  },
-  {
-    accessorKey: "wealthBuildersTitle",
-    header: "WBC",
-    cell: ({ row }) => {
-      const income = parseFloat(row.getValue("income"));
-      return <div>{calculateWBC(income)}</div>;
-    },
-    filterFn: (row, id, value) => {
-      const income = parseFloat(row.getValue("income"));
-      const title = calculateWBC(income);
-      return value.includes(title);
-    },
-  },
   {
     accessorKey: "cmir",
     header: ({ column }) => {
@@ -266,45 +215,70 @@ const createColumns = (
       </div>
     ),
   },
-
+  {
+    accessorKey: "income",
+    header: "Total Income",
+    cell: ({ row }) => <div>{formatCurrency(row.getValue("income"))}</div>,
+  },
+  {
+    accessorKey: "wealthBuildersTitle",
+    header: "WBC",
+    cell: ({ row }) => {
+      const income = parseFloat(row.getValue("income"));
+      return <div>{calculateWBC(income)}</div>;
+    },
+    filterFn: (row, id, value) => {
+      const income = parseFloat(row.getValue("income"));
+      const title = calculateWBC(income);
+      return value.includes(title);
+    },
+  },
+  {
+    accessorKey: "wholesale",
+    header: "Total Wholesale",
+  },
+  {
+    accessorKey: "bigLeagueTitle",
+    header: "BLC",
+    cell: ({ row }) => {
+      const wholesale = parseFloat(row.getValue("wholesale"));
+      return <div>{calculateBLC(wholesale)}</div>;
+    },
+    filterFn: (row, id, value) => {
+      const wholesale = parseFloat(row.getValue("wholesale"));
+      const title = calculateBLC(wholesale);
+      return value.includes(title);
+    },
+  },
   {
     accessorKey: "createdBy",
-    header: "Created By",
+    header: "Last Updated By",
   },
-  // TODO: ACTIONS
+  {
+    accessorKey: "createdAt",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Updated At
+          <ArrowUpDown />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="px-2">
+        {new Date(row.getValue("createdAt")).toLocaleString()}
+      </div>
+    ),
+  },
   {
     id: "actions",
     cell: ({ row }) => {
       const report = row.original;
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(report.id)}
-            >
-              <Copy />
-              Copy report ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Pencil />
-              Edit report
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Trash />
-              Delete report
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      return <CellAction report={report} acceptReports={acceptReports} />;
     },
   },
 ];
@@ -312,6 +286,7 @@ const createColumns = (
 export function MySubmissionsDataTable({
   data,
   userLocations,
+  acceptReports,
 }: MySubmissionsDataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -325,7 +300,7 @@ export function MySubmissionsDataTable({
   });
 
   const columns = useMemo(
-    () => createColumns(userLocations), // Pass the static rank array
+    () => createColumns(userLocations, acceptReports), // Pass the static rank array
     [userLocations]
   );
 

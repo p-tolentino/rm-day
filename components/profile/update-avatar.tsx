@@ -57,12 +57,6 @@ export function AvatarUpdateButton({
     setIsLoading(true);
 
     try {
-      // Delete old avatar
-      if (currentAvatarUrl) {
-        const deleteResult = await deleteAvatar(currentAvatarUrl);
-        console.log(deleteResult.message);
-      }
-
       // Upload new avatar
       const formData = new FormData();
       formData.append("file", values.avatar);
@@ -71,6 +65,12 @@ export function AvatarUpdateButton({
       if (uploadResult.error) {
         toast.error("Failed to upload image");
         return;
+      }
+
+      // IF successfull upload, delete old avatar
+      if (currentAvatarUrl) {
+        const deleteResult = await deleteAvatar(currentAvatarUrl);
+        console.log(deleteResult.message);
       }
 
       // Update wholesaler's avatar

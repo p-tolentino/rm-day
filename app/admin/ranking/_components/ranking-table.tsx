@@ -110,6 +110,7 @@ export type Report = {
 interface ReportDataTableProps {
   data: Report[];
   userLocations: UserLocation[] | undefined;
+  acceptReports: boolean;
 }
 
 function formatCurrency(amount: number) {
@@ -123,7 +124,8 @@ function formatCurrency(amount: number) {
 }
 
 const createColumns = (
-  userLocations: UserLocation[] | undefined
+  userLocations: UserLocation[] | undefined,
+  acceptReports: boolean
 ): ColumnDef<Report>[] => [
   {
     accessorKey: "avatar",
@@ -296,7 +298,7 @@ const createColumns = (
   },
   {
     accessorKey: "createdBy",
-    header: "Submitted By",
+    header: "Last Updated By",
   },
   {
     accessorKey: "createdAt",
@@ -306,7 +308,7 @@ const createColumns = (
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Timestamp
+          Updated At
           <ArrowUpDown />
         </Button>
       );
@@ -317,18 +319,21 @@ const createColumns = (
       </div>
     ),
   },
-  // TODO: ACTIONS
   {
     id: "actions",
     cell: ({ row }) => {
       const report = row.original;
 
-      return <CellAction report={report} />;
+      return <CellAction report={report} acceptReports={acceptReports} />;
     },
   },
 ];
 
-export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
+export function ReportDataTable({
+  data,
+  userLocations,
+  acceptReports,
+}: ReportDataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -347,7 +352,7 @@ export function ReportDataTable({ data, userLocations }: ReportDataTableProps) {
   >("all");
 
   const columns = useMemo(
-    () => createColumns(userLocations), // Pass the static rank array
+    () => createColumns(userLocations, acceptReports), // Pass the static rank array
     [userLocations]
   );
 

@@ -26,11 +26,23 @@ import { Copy, FileUser, MoreHorizontal, Pencil, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EditReportForm from "@/components/reports/edit-report";
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { toast } from "sonner";
+
 interface CellActionProps {
   report: any;
+  acceptReports: boolean;
 }
 
-export const CellAction: React.FC<CellActionProps> = ({ report }) => {
+export const CellAction: React.FC<CellActionProps> = ({
+  report,
+  acceptReports,
+}) => {
   const [isPending, startTransition] = useTransition();
 
   const [open, setOpen] = useState(false);
@@ -128,17 +140,36 @@ export const CellAction: React.FC<CellActionProps> = ({ report }) => {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem
-            onClick={() => navigator.clipboard.writeText(report.id)}
+            onClick={() => {
+              navigator.clipboard.writeText(report.id);
+              toast.info("Report ID copied to clipboard");
+            }}
           >
             <Copy />
             Copy report ID
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setOpenEditForm(true)}>
-            <Pencil />
-            Edit report
-          </DropdownMenuItem>
-          <DropdownMenuItem>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <DropdownMenuItem
+                  onClick={() => setOpenEditForm(true)}
+                  disabled={!acceptReports}
+                >
+                  <Pencil />
+                  Edit report
+                </DropdownMenuItem>
+              </div>
+            </TooltipTrigger>
+            {!acceptReports && (
+              <TooltipContent>
+                <p>Admin has disabled submitting reports</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+
+          <DropdownMenuItem disabled>
             <Trash />
             Delete report
           </DropdownMenuItem>

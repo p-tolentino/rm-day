@@ -3,6 +3,7 @@ import { SubteamReportDataTable } from "./_components/subteam-ranking-table";
 import type { Metadata } from "next";
 import { getSubteamReports } from "@/data/reports";
 import { getUserLocations } from "@/data/wholesalers";
+import { getDeadline } from "@/data/deadline";
 
 export const metadata: Metadata = {
   title: "Monthly Subteam Ranking",
@@ -27,6 +28,8 @@ export default async function Ranking() {
     }
   });
 
+  const acceptReports = await getDeadline();
+
   return (
     <>
       <Header pageTitle={metadata.title} />
@@ -34,6 +37,7 @@ export default async function Ranking() {
         <SubteamReportDataTable
           data={formattedReports.sort((a, b) => b.cmir - a.cmir)}
           userLocations={userLocations || []}
+          acceptReports={acceptReports}
         />
       </div>
     </>

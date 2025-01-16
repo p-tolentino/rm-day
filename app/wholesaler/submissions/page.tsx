@@ -3,6 +3,7 @@ import { MySubmissionsDataTable } from "./_components/submissions-table";
 import type { Metadata } from "next";
 import { getCurrentUserReports } from "@/data/reports";
 import { getUserLocations } from "@/data/wholesalers";
+import { getDeadline } from "@/data/deadline";
 
 export const metadata: Metadata = {
   title: "Monthly Ranking",
@@ -27,6 +28,8 @@ export default async function UserSubmissions() {
     }
   });
 
+  const acceptReports = await getDeadline();
+
   return (
     <>
       <Header pageTitle={metadata.title} />
@@ -34,6 +37,7 @@ export default async function UserSubmissions() {
         <MySubmissionsDataTable
           data={formattedReports}
           userLocations={userLocations || []}
+          acceptReports={acceptReports}
         />
       </div>
     </>

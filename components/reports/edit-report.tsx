@@ -28,13 +28,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Calculator, LoaderCircle } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { FoodCalculator } from "./food-calculator";
-// import { updateRmdReport } from "@/actions/report";
+import { deleteProof, updateRmdReport } from "@/actions/report";
 import { uploadFile } from "@/actions/upload";
+import { getAllCategories, getAllProducts } from "@/data/food";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ["image/jpg", "image/jpeg", "image/png"];
 
 export const editReportSchema = z.object({
+  reportId: z.number(),
   idNumber: z.string(),
   fullName: z.string().optional(),
   monthlyWholesale: z.number(),
@@ -50,7 +52,8 @@ export const editReportSchema = z.object({
     .refine(
       (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
       "Only .jpg, .jpeg, .png formats are supported"
-    ),
+    )
+    .optional(),
   ssCMIRUrl: z.string(),
   mmppSummaryReport: z.string(),
   ssMSR: z
@@ -63,7 +66,8 @@ export const editReportSchema = z.object({
     .refine(
       (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
       "Only .jpg, .jpeg, .png formats are supported"
-    ),
+    )
+    .optional(),
   ssMSRUrl: z.string(),
   consolidatedMonthlyFoodIncome: z.number(),
   agree: z.boolean(),
@@ -72,15 +76,11 @@ export const editReportSchema = z.object({
 // TODO: TYPE SAFETY FOR DATA TYPES
 const EditReportForm = ({
   acceptReports,
-  categories,
-  products,
   onFormSubmitSuccess,
   isDialogOpen,
   report,
 }: {
   acceptReports: boolean;
-  categories?: any;
-  products?: any;
   onFormSubmitSuccess: () => void;
   isDialogOpen: boolean;
   report: any;
@@ -88,6 +88,11 @@ const EditReportForm = ({
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+
+  // TODO: TYPE-SAFETY
+  const [categories, setCategories] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
 
   const [foodCalculatorValues, setFoodCalculatorValues] = useState<
     { id: string; name: string; points: number; quantity: string }[]
@@ -96,67 +101,117 @@ const EditReportForm = ({
   const form = useForm<z.infer<typeof editReportSchema>>({
     resolver: zodResolver(editReportSchema),
     defaultValues: {
+      reportId: report.id,
       idNumber: report.wholesalerId,
       fullName: report.fullName,
-      monthlyIncome: report.income,
+      monthlyIncome: report.income.toString(),
       monthlyWholesale: report.wholesale,
 
-      consolidatedMonthlyIncome: report.cmir,
+      consolidatedMonthlyIncome: report.cmir.toString(),
       ssCMIRUrl: report.ssCMIR,
 
-      mmppSummaryReport: report.msr,
+      mmppSummaryReport: report.msr.toString(),
       ssMSRUrl: report.ssMSR,
 
       consolidatedMonthlyFoodIncome: report.food,
     },
   });
 
+  const fetchCategoriesAndProducts = async () => {
+    setIsLoading(true);
+    setIsFetching(true);
+    const fetchingId = toast.loading("Loading food products...");
+
+    try {
+      const categories = await getAllCategories();
+      const products = await getAllProducts();
+
+      if (categories) {
+        setCategories(categories || []);
+      }
+
+      if (products) {
+        setProducts(products || []);
+      }
+    } catch (error) {
+      console.error("Error fetching categories & products:", error);
+      toast.error("Failed to fetch categories & products");
+    } finally {
+      toast.dismiss(fetchingId);
+      setIsLoading(false);
+      setIsFetching(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isDialogOpen) {
+      fetchCategoriesAndProducts();
+    }
+  }, [isDialogOpen]);
+
+  const cmirChanged =
+    form.watch("consolidatedMonthlyIncome") !== report.cmir.toString();
+  const msrChanged = form.watch("mmppSummaryReport") !== report.msr.toString();
+
   const onSubmit = async (values: z.infer<typeof editReportSchema>) => {
     try {
       setIsLoading(true);
 
-      // if (files?.[0] && files?.[1]) {
-      //   const cmirData = new FormData();
-      //   cmirData.append("file", files?.[0]);
+      let ssCMIR;
 
-      //   const msrData = new FormData();
-      //   msrData.append("file", files?.[1]);
+      if (files?.[0]) {
+        const cmirData = new FormData();
+        cmirData.append("file", files?.[0]);
 
-      //   const ssCMIR = await uploadFile(cmirData, "ssCMIR");
+        ssCMIR = await uploadFile(cmirData, "ssCMIR");
 
-      //   if (ssCMIR.error) {
-      //     toast.error("Failed to upload image");
-      //     return;
-      //   }
+        if (ssCMIR.error) {
+          toast.error("Failed to upload CMIR");
+        }
 
-      //   const ssMSR = await uploadFile(msrData, "ssMSR");
-      //   if (ssMSR.error) {
-      //     toast.error("Failed to upload image");
-      //     return;
-      //   }
+        // IF successfull upload, delete old CMIR proof
+        if (report.ssCMIR && ssCMIR.url) {
+          const deleteResult = await deleteProof(report.ssCMIR, "ssCMIR");
+          console.log(deleteResult.message);
+        }
+      }
 
-      //   if (ssCMIR.url && ssMSR.url) {
-      //     const result = await createRmdReport({
-      //       ...values,
-      //       ssCMIRUrl: ssCMIR.url,
-      //       ssMSRUrl: ssMSR.url,
-      //     });
+      let ssMSR;
 
-      //     if (result.success) {
-      //       toast.success("Report submitted successfully");
-      //       onFormSubmitSuccess();
-      //       form.reset();
-      //     } else {
-      //       throw new Error(result.message);
-      //     }
-      //   }
-      // }
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
-      onFormSubmitSuccess();
+      if (files?.[1]) {
+        const msrData = new FormData();
+        msrData.append("file", files?.[1]);
+
+        ssMSR = await uploadFile(msrData, "ssMSR");
+        if (ssMSR.error) {
+          toast.error("Failed to upload MSR");
+        }
+
+        // IF successfull upload, delete old MSR proof
+        if (report.ssMSR && ssMSR.url) {
+          const deleteResult = await deleteProof(report.ssMSR, "ssMSR");
+          console.log(deleteResult.message);
+        }
+      }
+
+      const cmirUrl = ssCMIR?.url || report.ssCMIR;
+      const msrUrl = ssMSR?.url || report.ssMSR;
+
+      if (cmirUrl && msrUrl) {
+        const result = await updateRmdReport({
+          ...values,
+          ssCMIRUrl: cmirUrl,
+          ssMSRUrl: msrUrl,
+        });
+
+        if (result.success) {
+          toast.success("Report updated successfully");
+          onFormSubmitSuccess();
+          form.reset();
+        } else {
+          throw new Error(result.message);
+        }
+      }
     } catch (error) {
       console.error("Form submission error", error);
       toast.error("Failed to submit the form. Please try again.");
@@ -168,10 +223,7 @@ const EditReportForm = ({
   return (
     <Form {...form}>
       <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          form.handleSubmit(onSubmit)(e);
-        }}
+        onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-3 max-w-3xl mx-auto py-10"
       >
         <div className="grid grid-cols-12 gap-4">
@@ -384,7 +436,7 @@ const EditReportForm = ({
                             });
                           }
                         }}
-                        required
+                        required={cmirChanged}
                       />
                     )}
                   </FormControl>
@@ -462,7 +514,7 @@ const EditReportForm = ({
                             });
                           }
                         }}
-                        required
+                        required={msrChanged}
                       />
                     )}
                   </FormControl>
@@ -507,6 +559,7 @@ const EditReportForm = ({
                       type="button"
                       className={"flex align-middle items-center space-x-2"}
                       onClick={() => setOpen(true)}
+                      disabled={isFetching}
                     >
                       <Calculator className="w-4 h-4" />
                       <span className="hidden sm:inline">Food Calculator</span>
