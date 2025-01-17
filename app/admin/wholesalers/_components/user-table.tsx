@@ -263,7 +263,7 @@ const createColumns = (
     cell: ({ row }) => {
       const user = row.original;
 
-      return <CellAction user={user} />;
+      return <CellAction user={user} role={role} />;
     },
   },
 ];

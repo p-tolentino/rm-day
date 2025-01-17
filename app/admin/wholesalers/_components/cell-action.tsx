@@ -25,6 +25,7 @@ import {
   IdCard,
   MoreHorizontal,
   Pencil,
+  ShieldIcon,
   Trash,
   UserRoundX,
 } from "lucide-react";
@@ -33,15 +34,19 @@ import { toast } from "sonner";
 import { AlertModal } from "@/components/modals/alert-modal";
 import { deleteWholesaler } from "@/actions/wholesaler";
 import ChangeWholesalerIdDialog from "@/components/auth/change-id";
+import { useRouter } from "next/navigation";
 
 interface CellActionProps {
   user: any;
+  role: string;
 }
 
-export const CellAction: React.FC<CellActionProps> = ({ user }) => {
+export const CellAction: React.FC<CellActionProps> = ({ user, role }) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditWholesalerId, setOpenEditWholesalerId] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const router = useRouter();
 
   const handleDelete = async () => {
     try {
@@ -62,6 +67,24 @@ export const CellAction: React.FC<CellActionProps> = ({ user }) => {
       setIsDeleting(false);
     }
   };
+
+  // !! TEST FUNCTION
+  const impersonateUser = async (userId: string) => {
+    const response = await fetch("/api/impersonate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }),
+    });
+
+    if (response.ok) {
+      console.log("Impersonation started");
+      router.push(`/wholesaler/profile`);
+      router.refresh();
+    }
+  };
+
   return (
     <>
       <AlertModal
@@ -145,6 +168,22 @@ export const CellAction: React.FC<CellActionProps> = ({ user }) => {
             <Trash />
             Delete user
           </DropdownMenuItem>
+          {role === "SUPERADMIN" && (
+            <>
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                className="text-orange-500 focus:text-orange-500"
+                onClick={() => {
+                  impersonateUser(user.idNum);
+                  toast.info("Impersonating User");
+                }}
+              >
+                <ShieldIcon />
+                Login as User
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </>

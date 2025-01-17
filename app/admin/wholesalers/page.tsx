@@ -34,7 +34,10 @@ export default async function WholesalerData() {
       />
       <div className="container mx-auto py-10">
         <WholesalerDataTable
-          data={wholesalers.filter((wholesaler) => wholesaler.role !== "ADMIN")}
+          data={wholesalers.filter(
+            (wholesaler) =>
+              wholesaler.role !== "ADMIN" && wholesaler.role !== "SUPERADMIN"
+          )}
           userLocations={userLocations}
           role={role}
         />

@@ -45,7 +45,7 @@ const Header = ({
     setProductOpen(false);
   };
 
-  const isAdmin = role === "ADMIN";
+  const isAdmin = role === "SUPERADMIN" || role === "ADMIN";
   const isLeader = role === "LEADER";
 
   const pathname = usePathname();

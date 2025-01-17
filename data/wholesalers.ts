@@ -78,7 +78,7 @@ export async function getNonSubmittingSubteamMembers() {
 
   let subteamMembers;
 
-  if (profile.subTeam === "ADMIN") {
+  if (profile.subTeam === "SUPERADMIN" || profile.subTeam === "ADMIN") {
     const { data: allWholesalers, error } = await supabase
       .from("wholesalers")
       .select("idNum");

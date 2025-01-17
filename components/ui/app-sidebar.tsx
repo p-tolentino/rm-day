@@ -210,7 +210,7 @@ export function AppSidebar({
   incompleteAccountSetup,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
-  userRole: "ADMIN" | "LEADER" | "WHOLESALER";
+  userRole: "SUPERADMIN" | "ADMIN" | "LEADER" | "WHOLESALER";
   acceptReports: boolean;
   user: any;
   categories?: any;
@@ -225,7 +225,7 @@ export function AppSidebar({
   const router = useRouter();
 
   const linksToUse =
-    userRole === "ADMIN"
+    userRole === "SUPERADMIN" || userRole === "ADMIN"
       ? adminLinks
       : userRole === "LEADER"
       ? leaderLinks
@@ -354,7 +354,9 @@ export function AppSidebar({
             </TooltipContent>
           )}
         </Tooltip>
-        {(userRole === "ADMIN" || userRole === "LEADER") && (
+        {(userRole === "SUPERADMIN" ||
+          userRole === "ADMIN" ||
+          userRole === "LEADER") && (
           <div className="flex justify-center pt-2">
             <Dialog
               open={openSubteamReportDialog}
@@ -441,7 +443,7 @@ export function AppSidebar({
         ))}
       </SidebarContent>
       <SidebarFooter>
-        {userRole === "ADMIN" && (
+        {(userRole === "SUPERADMIN" || userRole === "ADMIN") && (
           <Form {...form}>
             <form className="space-y-2 w-full mx-auto mb-10">
               <FormField

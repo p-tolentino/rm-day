@@ -54,7 +54,7 @@ export default async function AdminLayout({
     hasNotSetupAccount(),
   ]);
 
-  if (role !== "ADMIN") {
+  if (role !== "SUPERADMIN" && role !== "ADMIN") {
     return <UnauthorizedGate role="ADMIN" />;
   }
 

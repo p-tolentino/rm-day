@@ -7,8 +7,8 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import AchievementViewer from "@/components/ui/achievement-viewer";
-import { AvatarUpdateButton } from "@/components/profile/update-avatar";
 import { EditProfileDialog } from "./edit-profile";
+import { AvatarUpdateButton } from "@/components/profile/update-avatar";
 
 type Achievement = {
   title: string;
@@ -47,6 +47,7 @@ export type SubteamTitle =
   | "SG"
   | "RAINMAKERS"
   | "ADMIN"
+  | "SUPERADMIN"
   | "PLACEHOLDER";
 
 export const ACHIEVEMENT_IMAGES: Record<AchievementTitle, string> = {
@@ -93,6 +94,7 @@ export const SUBTEAM_IMAGES: Record<SubteamTitle, string> = {
 
   // ADMIN
   ADMIN: "/images/subteams/rm.png",
+  SUPERADMIN: "/images/subteams/rm.png",
 
   // Placeholder for missing images
   PLACEHOLDER: "/images/subteams/placeholder.png",
