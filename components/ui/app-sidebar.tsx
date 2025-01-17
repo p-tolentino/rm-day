@@ -69,6 +69,7 @@ import ChangePasswordDialog from "../auth/change-password";
 import { useRouter } from "next/navigation";
 import { ChangeEmailDialog } from "../auth/change-email";
 import SubteamMemberForm from "../reports/subteam-rm-day";
+import Link from "next/link";
 
 const adminLinks = {
   navMain: [
@@ -429,10 +430,10 @@ export function AppSidebar({
                           )}
                         </Tooltip>
                       ) : (
-                        <a href={item.url}>
+                        <Link prefetch={false} href={item.url}>
                           {item.icon && createElement(item.icon, { size: 18 })}
                           {item.title}
-                        </a>
+                        </Link>
                       )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
