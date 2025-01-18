@@ -137,3 +137,16 @@ export async function changeEmail(newEmail: string) {
     };
   }
 }
+
+export async function recoverPassword(email: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+
+  console.log(data);
+
+  if (error) {
+    return { success: false, message: error.message };
+  }
+
+  return { success: true, message: "Password recovery email sent!" };
+}

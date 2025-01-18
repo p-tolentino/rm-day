@@ -8,10 +8,17 @@ import * as z from "zod";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { login } from "@/actions/auth";
+import { login, recoverPassword } from "@/actions/auth";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Send } from "lucide-react";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export function LoginForm({
   className,
@@ -22,21 +29,52 @@ export function LoginForm({
     password: z
       .string()
       .min(6, { message: "Password must be at least 6 characters long" }),
+    email: z.string().email("Please enter a valid email address").optional(),
   });
 
   const router = useRouter();
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecoveryLoading, setIsRecoveryLoading] = useState(false);
+
+  const [isRecoverDialogOpen, setIsRecoverDialogOpen] = useState(false);
 
   const toggleVisibility = () => setIsVisible((prevState) => !prevState);
 
-  const { register, handleSubmit } = useForm<z.infer<typeof authSchema>>({
+  const { register, handleSubmit, getValues, reset } = useForm<
+    z.infer<typeof authSchema>
+  >({
     resolver: zodResolver(authSchema),
     defaultValues: {
       username: "",
       password: "",
     },
   });
+
+  const handleRecoverPassword = async (recoverEmail: string | undefined) => {
+    setIsRecoveryLoading(true);
+
+    try {
+      if (!recoverEmail) {
+        toast.warning("Please enter a valid email.");
+        return;
+      }
+
+      const result = await recoverPassword(recoverEmail);
+      if (result.success) {
+        toast.info(result.message);
+        reset();
+        setIsRecoverDialogOpen(false);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred while recovering your password.");
+    } finally {
+      setIsRecoveryLoading(false);
+    }
+  };
 
   const onSubmit = async (data: z.infer<typeof authSchema>) => {
     setIsLoading(true);
@@ -74,7 +112,15 @@ export function LoginForm({
           />
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="password">Password</Label>
+          <div className="flex items-center">
+            <Label htmlFor="password">Password</Label>
+            <div
+              className="ml-auto inline-block text-sm underline-offset-4 hover:underline text-gray-400 cursor-pointer"
+              onClick={() => setIsRecoverDialogOpen(true)}
+            >
+              Forgot your password?
+            </div>
+          </div>
           <div className="relative">
             <Input
               id="password"
@@ -108,10 +154,47 @@ export function LoginForm({
             className="border-gray-400"
           /> */}
         </div>
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button
+          onClick={() => onSubmit(getValues())}
+          className="w-full"
+          disabled={isLoading}
+        >
           {isLoading ? "Logging In..." : "Login"}
         </Button>
       </div>
+
+      <Dialog open={isRecoverDialogOpen} onOpenChange={setIsRecoverDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Recover Password</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col space-y-4">
+            <p>You will receive an email to recover your password</p>
+            <Input
+              placeholder="Email"
+              type="email"
+              className="w-full"
+              {...register("email")}
+            />
+            <div className="flex justify-end">
+              <Button
+                onClick={() => handleRecoverPassword(getValues("email"))}
+                className="flex items-center"
+                disabled={isRecoveryLoading}
+              >
+                {isRecoveryLoading ? (
+                  "Sending recovery email..."
+                ) : (
+                  <>
+                    <Send />
+                    <span>Send Email</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </form>
   );
 }
