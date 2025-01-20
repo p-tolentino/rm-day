@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     type: "magiclink",
     email: selectedUser.email,
     options: {
-      redirectTo: "http://localhost:3000/wholesaler/profile", // Redirect to profile page
+      redirectTo: `{{ .SiteURL }}/wholesaler/profile`, // Redirect to profile page
     },
   });
 
