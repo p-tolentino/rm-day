@@ -28,6 +28,13 @@ import {
 
 import { Button } from "@/components/ui/button";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -58,6 +65,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
 
 export type Food = {
   id: string;
@@ -343,21 +351,50 @@ export function FoodDataTable({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredRowModel().rows.length > 0 ? (
-            `Showing ${
-              table.getState().pagination.pageIndex *
-                table.getState().pagination.pageSize +
-              1
-            } to ${Math.min(
-              (table.getState().pagination.pageIndex + 1) *
-                table.getState().pagination.pageSize,
-              table.getFilteredRowModel().rows.length
-            )} of ${table.getFilteredRowModel().rows.length} results`
-          ) : (
-            <span className="text-sm text-gray-400 italic">No results</span>
-          )}
+      <div className="flex items-center justify-between space-x-2 py-4">
+        <div className="flex text-sm text-muted-foreground items-center gap-2">
+          <div>
+            {table.getFilteredRowModel().rows.length > 0 ? (
+              `Showing ${
+                table.getState().pagination.pageIndex *
+                  table.getState().pagination.pageSize +
+                1
+              } to ${Math.min(
+                (table.getState().pagination.pageIndex + 1) *
+                  table.getState().pagination.pageSize,
+                table.getFilteredRowModel().rows.length
+              )} of ${table.getFilteredRowModel().rows.length} results`
+            ) : (
+              <span className="text-sm text-gray-400 italic">No results</span>
+            )}
+          </div>
+          <div className="h-5">
+            <Separator orientation="vertical" />
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-muted-foreground">
+              Rows per page:
+            </span>
+            <Select
+              value={`${table.getState().pagination.pageSize}`}
+              onValueChange={(value) => {
+                table.setPageSize(Number(value));
+              }}
+            >
+              <SelectTrigger className="h-8 w-[100px]">
+                <SelectValue
+                  placeholder={table.getState().pagination.pageSize}
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {[10, 50, 100, 500, 1000].map((pageSize) => (
+                  <SelectItem key={pageSize} value={`${pageSize}`}>
+                    {pageSize}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <div className="space-x-2">
           <Button
