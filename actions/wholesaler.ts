@@ -63,7 +63,7 @@ export async function registerWholesalerInfo(
     email: email.trim().toLocaleLowerCase(),
     idNum: cleanText(idNum),
     firstName: cleanText(firstName),
-    middleName: middleName ? cleanText(middleName) : " ",
+    middleName: middleName ? cleanText(middleName) : null,
     lastName: cleanText(lastName),
     country: location && location[0],
     city: location && location[1],
@@ -73,8 +73,10 @@ export async function registerWholesalerInfo(
     avatar,
     createdBy: currentUser
       ? `${currentUser.firstName} ${
-          currentUser.middleName && currentUser.middleName[0]
-        }${currentUser.middleName && `. `}${currentUser.lastName}`
+          currentUser.middleName && currentUser.middleName.trim()
+            ? `${currentUser.middleName[0]}. `
+            : ""
+        }${currentUser.lastName}`
       : null,
   });
 
@@ -129,7 +131,7 @@ export async function updateWholesalerInfo(
     .update({
       // dob: formatDate(dob),
       firstName: cleanText(firstName),
-      middleName: middleName ? cleanText(middleName) : " ",
+      middleName: middleName ? cleanText(middleName) : null,
       lastName: cleanText(lastName),
       country: location[0],
       city: location[1],

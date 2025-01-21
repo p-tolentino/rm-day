@@ -47,8 +47,10 @@ export default function ChangeWholesalerIdDialog({
       if (result.success) {
         toast.success(
           `${result.message} ${user.firstName} ${
-            user.middleName && user.middleName[0]
-          }${user.middleName && `. `}${user.lastName}`
+            user.middleName && user.middleName.trim()
+              ? `${user.middleName[0]}. `
+              : ""
+          }${user.lastName}`
         );
         form.reset();
         onFormSubmitSuccess();

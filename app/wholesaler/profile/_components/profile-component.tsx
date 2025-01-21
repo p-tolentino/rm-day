@@ -183,8 +183,10 @@ export default function ProfilePage({
                   <Label className="text-gray-400">COMPLETE NAME</Label>
                   <p className="text-sm">
                     {`${profile.firstName} ${
-                      profile.middleName && profile.middleName[0]
-                    }${profile.middleName && `. `}${profile.lastName}`}
+                      profile.middleName && profile.middleName.trim()
+                        ? `${profile.middleName[0]}. `
+                        : ""
+                    }${profile.lastName}`}
                   </p>
                 </div>
                 <div>

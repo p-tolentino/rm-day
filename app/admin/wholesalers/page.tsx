@@ -21,8 +21,10 @@ export default async function WholesalerData() {
 
   const formattedWholesalers = wholesalers.map((wholesaler) => {
     return `${wholesaler.firstName} ${
-      wholesaler.middleName && wholesaler.middleName[0]
-    }${wholesaler.middleName && `. `}${wholesaler.lastName}`;
+      wholesaler.middleName && wholesaler.middleName.trim()
+        ? `${wholesaler.middleName[0]}. `
+        : ""
+    }${wholesaler.lastName}`;
   });
 
   return (

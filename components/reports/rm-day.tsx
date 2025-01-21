@@ -102,8 +102,10 @@ const RMDayForm = ({
     defaultValues: {
       idNumber: user.idNum || "",
       fullName:
-        `${user.firstName} ${user.middleName && user.middleName[0]}${
-          user.middleName && `. `
+        `${user.firstName} ${
+          user.middleName && user.middleName.trim()
+            ? `${user.middleName[0]}. `
+            : ""
         }${user.lastName}` || "",
       consolidatedMonthlyIncome: "0",
       mmppSummaryReport: "0",

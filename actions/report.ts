@@ -73,8 +73,10 @@ export async function createRmdReport(values: z.infer<typeof reportSchema>) {
     .from("reports")
     .insert({
       createdBy: `${currentUser?.firstName} ${
-        currentUser?.middleName && currentUser?.middleName[0]
-      }${currentUser?.middleName && `. `}${currentUser?.lastName}`,
+        currentUser?.middleName && currentUser?.middleName.trim()
+          ? `${currentUser?.middleName[0]}. `
+          : ""
+      }${currentUser?.lastName}`,
       wholesalerId: idNumber,
       fullName,
       wholesale: monthlyWholesale,
@@ -205,8 +207,10 @@ export async function updateRmdReport(
     .update({
       updatedAt: new Date().toISOString(),
       createdBy: `${currentUser?.firstName} ${
-        currentUser?.middleName && currentUser?.middleName[0]
-      }${currentUser?.middleName && `. `}${currentUser?.lastName}`,
+        currentUser?.middleName && currentUser?.middleName.trim()
+          ? `${currentUser?.middleName[0]}. `
+          : ""
+      }${currentUser?.lastName}`,
       wholesale: monthlyWholesale,
       income: parseFloat(monthlyIncome),
       cmir: parseFloat(consolidatedMonthlyIncome),

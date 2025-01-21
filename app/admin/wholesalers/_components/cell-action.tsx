@@ -102,8 +102,10 @@ export const CellAction: React.FC<CellActionProps> = ({ user, role }) => {
           <>
             <span>
               Are you sure you want to delete{" "}
-              {`${user.firstName} ${user.middleName && user.middleName[0]}${
-                user.middleName && `. `
+              {`${user.firstName} ${
+                user.middleName && user.middleName.trim()
+                  ? `${user.middleName[0]}. `
+                  : ""
               }${user.lastName} (${user.idNum})? `}
               <span className="font-semibold">
                 This action cannot be undone.
