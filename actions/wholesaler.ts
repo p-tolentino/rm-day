@@ -63,7 +63,7 @@ export async function registerWholesalerInfo(
     email: email.trim().toLocaleLowerCase(),
     idNum: cleanText(idNum),
     firstName: cleanText(firstName),
-    middleName: middleName ? cleanText(middleName) : null,
+    middleName: middleName ? cleanText(middleName) : " ",
     lastName: cleanText(lastName),
     country: location && location[0],
     city: location && location[1],
@@ -129,7 +129,7 @@ export async function updateWholesalerInfo(
     .update({
       // dob: formatDate(dob),
       firstName: cleanText(firstName),
-      middleName: middleName ? cleanText(middleName) : null,
+      middleName: middleName ? cleanText(middleName) : " ",
       lastName: cleanText(lastName),
       country: location[0],
       city: location[1],
