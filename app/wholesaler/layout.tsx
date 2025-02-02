@@ -61,7 +61,7 @@ export default async function UserLayout({
         user={profile}
         products={products}
         categories={categories}
-        hasSubmitted={hasSubmitted}
+        hasSubmitted={false}
         incompleteAccountSetup={incompleteAccountSetup}
       />
       <SidebarInset>{children}</SidebarInset>
