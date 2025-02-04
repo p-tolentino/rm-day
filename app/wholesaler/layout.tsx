@@ -40,7 +40,7 @@ export default async function UserLayout({
     profile,
     categories,
     products,
-    hasSubmitted,
+    // hasSubmitted,
     incompleteAccountSetup,
   ] = await Promise.all([
     getCurrentRole(),

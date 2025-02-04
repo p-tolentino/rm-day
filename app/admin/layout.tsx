@@ -42,7 +42,7 @@ export default async function AdminLayout({
     profile,
     categories,
     products,
-    hasSubmitted,
+    // hasSubmitted,
     incompleteAccountSetup,
   ] = await Promise.all([
     getCurrentRole(),
