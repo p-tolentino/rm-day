@@ -206,7 +206,9 @@ export const getUserLocations = async () => {
 
   const { data: users, error } = await supabase
     .from("wholesalers")
-    .select("idNum, country, city, subTeam, profession, avatar");
+    .select(
+      "idNum, country, city, subTeam, profession, avatar, totalWholesale, totalIncome"
+    );
 
   if (error) {
     console.error(error.message);

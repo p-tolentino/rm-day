@@ -48,10 +48,20 @@ export default async function OverallRanking() {
       );
 
       if (userInfo) {
-        const { subTeam, country, idNum, profession, avatar } = userInfo;
+        const {
+          subTeam,
+          country,
+          idNum,
+          profession,
+          avatar,
+          totalIncome,
+          totalWholesale,
+        } = userInfo;
 
         return {
           ...report,
+          wholesale: totalWholesale,
+          income: totalIncome,
           subTeam,
           country,
           wholesalerId: idNum,
