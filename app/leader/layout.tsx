@@ -7,7 +7,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AuthCheck } from "@/components/auth/auth-check";
 import { getCurrentRole, getCurrentUser } from "@/data/wholesalers";
 import { getDeadline } from "@/data/deadline";
-import { hasSubmittedThisMonth } from "@/data/reports";
+// import { hasSubmittedThisMonth } from "@/data/reports";
 import {
   hasNotSetupAccount,
   updateWholesalerEmail,
@@ -50,7 +50,7 @@ export default async function LeaderLayout({
     getCurrentUser(),
     getAllCategories(),
     getAllProducts(),
-    hasSubmittedThisMonth(),
+    // hasSubmittedThisMonth(),
     hasNotSetupAccount(),
   ]);
 

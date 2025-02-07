@@ -344,7 +344,6 @@ export async function hasNotSetupAccount() {
     .single();
 
   const { subTeam, sponsor, country, profession } = currentUser;
-
   const noAccount = !subTeam || !sponsor || !country || !profession;
 
   return noAccount;

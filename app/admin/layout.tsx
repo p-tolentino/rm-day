@@ -8,7 +8,7 @@ import { AuthCheck } from "@/components/auth/auth-check";
 import { getCurrentRole, getCurrentUser } from "@/data/wholesalers";
 import { getDeadline } from "@/data/deadline";
 import { getAllCategories, getAllProducts } from "@/data/food";
-import { hasSubmittedThisMonth } from "@/data/reports";
+// import { hasSubmittedThisMonth } from "@/data/reports";
 import {
   hasNotSetupAccount,
   updateWholesalerEmail,
@@ -50,7 +50,7 @@ export default async function AdminLayout({
     getCurrentUser(),
     getAllCategories(),
     getAllProducts(),
-    hasSubmittedThisMonth(),
+    // hasSubmittedThisMonth(),
     hasNotSetupAccount(),
   ]);
 
