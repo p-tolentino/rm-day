@@ -31,10 +31,7 @@ export const ImageViewer = ({
   ) => {
     setIsImageLoading(false);
     const error = event.nativeEvent as ErrorEvent;
-    setErrorMessage(
-      error.message ||
-        "The image failed to load. Please check the URL or try again."
-    );
+    setErrorMessage(error.message || "Please check the URL or try again.");
   };
 
   return (
