@@ -20,15 +20,21 @@ export const ImageViewer = ({
   title: string;
 }) => {
   const [isImageLoading, setIsImageLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleImageLoad = () => {
     setIsImageLoading(false);
   };
 
-  const handleImageError = () => {
+  const handleImageError = (
+    event: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
     setIsImageLoading(false);
-    setHasError(true);
+    const error = event.nativeEvent as ErrorEvent;
+    setErrorMessage(
+      error.message ||
+        "The image failed to load. Please check the URL or try again."
+    );
   };
 
   return (
@@ -48,9 +54,9 @@ export const ImageViewer = ({
               <LoaderCircle className="h-8 w-8 animate-spin" />
             </div>
           )}
-          {hasError ? (
+          {errorMessage ? (
             <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-              Failed to load image
+              Failed to load image: {errorMessage}
             </div>
           ) : (
             <Image
