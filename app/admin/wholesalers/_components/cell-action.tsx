@@ -178,7 +178,9 @@ export const CellAction: React.FC<CellActionProps> = ({ user, role }) => {
                 className="text-orange-500 focus:text-orange-500"
                 onClick={() => {
                   impersonateUser(user.idNum);
-                  toast.info("Impersonating User");
+                  toast.info(
+                    `Logging in as ${user.firstName} ${user.middleName} ${user.lastName} (${user.idNum})`
+                  );
                 }}
               >
                 <ShieldIcon />
