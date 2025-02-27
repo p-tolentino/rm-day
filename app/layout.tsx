@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Toaster } from "sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { cookies } from "next/headers";
-import { ImpersonationButton } from "@/components/auth/return-to-admin";
 import { createClient } from "@/utils/supabase/server";
+// import { Toaster } from "sonner";
+// import { TooltipProvider } from "@/components/ui/tooltip";
+// import { ImpersonationButton } from "@/components/auth/return-to-admin";
 
 export const metadata: Metadata = {
   title: "RM Day Submissions",
@@ -32,11 +32,11 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <TooltipProvider>
+        {/* <TooltipProvider>
           {children}
           {isImpersonating && <ImpersonationButton />}
           <Toaster richColors />
-        </TooltipProvider>
+        </TooltipProvider> */}
       </body>
     </html>
   );
