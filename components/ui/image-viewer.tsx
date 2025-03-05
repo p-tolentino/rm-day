@@ -67,6 +67,7 @@ export const ImageViewer = ({
               priority
               onLoad={handleImageLoad}
               onError={handleImageError}
+              unoptimized
             />
           )}
         </div>
