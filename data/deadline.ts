@@ -1,20 +1,22 @@
-'use server'
+"use server";
 
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from "@/utils/supabase/server";
 
 export const getDeadline = async () => {
-const supabase = await createClient()
+  const supabase = await createClient();
 
-const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-const { data: deadline, error } = await supabase
+  const { data: deadline, error } = await supabase
     .from("deadline")
     .select("acceptResponses")
     .single();
 
-if (error){
-    return { error: error.message }
-}
+  if (error) {
+    return { error: error.message };
+  }
 
-return deadline.acceptResponses
-}
+  return deadline.acceptResponses;
+};
