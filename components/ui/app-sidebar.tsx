@@ -229,8 +229,8 @@ export function AppSidebar({
     userRole === "SUPERADMIN" || userRole === "ADMIN"
       ? adminLinks
       : userRole === "LEADER"
-      ? leaderLinks
-      : memberLinks;
+        ? leaderLinks
+        : memberLinks;
 
   // Supabase Auth listener
   useEffect(() => {}, []);

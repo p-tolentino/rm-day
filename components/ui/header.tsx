@@ -7,7 +7,6 @@ import { Plus, UserRoundPlus, Utensils, ChartBarStacked } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { SidebarTrigger } from "./sidebar";
 import { Separator } from "./separator";
-
 import {
   Dialog,
   DialogContent,
@@ -26,52 +25,44 @@ const Header = ({
   categories,
   role,
 }: {
-  // TODO: TYPESAFETY
   categories?: any;
   wholesalers?: any;
   pageTitle: string | TemplateString | null | undefined;
   role?: string;
 }) => {
   const [wholesalerOpen, setWholesalerOpen] = useState(false);
-
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [productOpen, setProductOpen] = useState(false);
 
-  const onCategorySucess = async () => {
-    setCategoryOpen(false);
-  };
-
-  const onProductSucess = async () => {
-    setProductOpen(false);
-  };
-
   const isAdmin = role === "SUPERADMIN" || role === "ADMIN";
   const isLeader = role === "LEADER";
-
   const pathname = usePathname();
 
   return (
-    <>
-      <header className="flex justify-between h-16 shrink-0 items-center gap-2 border-b px-4">
-        <div className="flex items-center space-x-2">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <span className="font-semibold text-lg">{pageTitle?.toString()}</span>
-        </div>
+    <header className="flex justify-between h-14 shrink-0 items-center gap-2 border-b px-4 sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex items-center gap-2 min-w-0">
+        <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-primary transition-colors shrink-0" />
+        <Separator orientation="vertical" className="mr-1 h-4 shrink-0" />
+        <span className="font-semibold text-base truncate">
+          {pageTitle?.toString()}
+        </span>
+      </div>
 
+      <div className="flex items-center gap-2 shrink-0">
         {role &&
           (isAdmin || isLeader) &&
-          (pathname === `/admin/wholesalers` ||
-            pathname === `/leader/subteam`) && (
+          (pathname === "/admin/wholesalers" ||
+            pathname === "/leader/subteam") && (
             <Dialog open={wholesalerOpen} onOpenChange={setWholesalerOpen}>
               <DialogTrigger asChild>
                 <Button
                   type="button"
-                  className="flex align-middle items-center space-x-2"
+                  size="sm"
+                  className="flex items-center gap-1.5"
                   onClick={() => setWholesalerOpen(true)}
                 >
                   <UserRoundPlus className="w-4 h-4" />
-                  <span>New Wholesaler</span>
+                  <span className="hidden sm:inline">New Wholesaler</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-[425px] md:max-w-3xl">
@@ -81,7 +72,6 @@ const Header = ({
                     <span>Register New Wholesaler</span>
                   </DialogTitle>
                 </DialogHeader>
-
                 <div>
                   <Separator />
                   <RegisterWholesalerForm
@@ -93,17 +83,19 @@ const Header = ({
             </Dialog>
           )}
 
-        {role && isAdmin && pathname === `/admin/food-dropship` && (
-          <div className="flex space-x-4">
+        {role && isAdmin && pathname === "/admin/food-dropship" && (
+          <div className="flex items-center gap-2">
             <Dialog open={categoryOpen} onOpenChange={setCategoryOpen}>
               <DialogTrigger asChild>
                 <Button
                   type="button"
-                  className="flex align-middle items-center space-x-2"
+                  size="sm"
+                  variant="outline"
+                  className="flex items-center gap-1.5"
                   onClick={() => setCategoryOpen(true)}
                 >
                   <Plus className="w-4 h-4" />
-                  <span>New Category</span>
+                  <span className="hidden sm:inline">New Category</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-[425px]">
@@ -113,23 +105,24 @@ const Header = ({
                     <span>Create New Category</span>
                   </DialogTitle>
                 </DialogHeader>
-
                 <div>
                   <Separator />
-                  <CategoryForm onCategorySucess={onCategorySucess} />
+                  <CategoryForm
+                    onCategorySucess={() => setCategoryOpen(false)}
+                  />
                 </div>
               </DialogContent>
             </Dialog>
-
             <Dialog open={productOpen} onOpenChange={setProductOpen}>
               <DialogTrigger asChild>
                 <Button
                   type="button"
-                  className="flex align-middle items-center space-x-2"
+                  size="sm"
+                  className="flex items-center gap-1.5"
                   onClick={() => setProductOpen(true)}
                 >
                   <Plus className="w-4 h-4" />
-                  <span>New Product</span>
+                  <span className="hidden sm:inline">New Product</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-[425px]">
@@ -139,20 +132,19 @@ const Header = ({
                     <span>Create New Product</span>
                   </DialogTitle>
                 </DialogHeader>
-
                 <div>
                   <Separator />
                   <ProductForm
                     categories={categories}
-                    onProductSucess={onProductSucess}
+                    onProductSucess={() => setProductOpen(false)}
                   />
                 </div>
               </DialogContent>
             </Dialog>
           </div>
         )}
-      </header>
-    </>
+      </div>
+    </header>
   );
 };
 

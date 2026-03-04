@@ -16,7 +16,7 @@ export const AchievementViewer = ({
   const [error, setError] = useState(false);
 
   return (
-    <div className="relative w-24 h-24 overflow-hidden m-2">
+    <div className="relative w-full h-full overflow-hidden">
       <Image
         src={
           error
