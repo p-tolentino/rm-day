@@ -7,13 +7,26 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { redirect } from "next/navigation";
+import { getCurrentRole } from "@/data/wholesalers";
 
 export const metadata = {
   title: "Under Maintenance",
   description: "We're currently performing scheduled maintenance.",
 };
 
-export default function MaintenancePage() {
+export default async function MaintenancePage() {
+  const role = await getCurrentRole();
+  const isMaintenance = process.env.MAINTENANCE_MODE === "true";
+
+  if (!isMaintenance) {
+    redirect("/login");
+  }
+
+  if (role === "SUPERADMIN" || role === "ADMIN") {
+    redirect("/dashboard");
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-gray-900 dark:to-gray-800 p-4">
       <Card className="w-full max-w-md shadow-lg border-0">
