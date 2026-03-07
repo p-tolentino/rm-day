@@ -15,7 +15,7 @@ export const metadata = {
   description: "We're currently performing scheduled maintenance.",
 };
 
-export default async function MaintenancePage() {
+export default async function MaintenanceGate() {
   const role = await getCurrentRole();
   const isMaintenance = process.env.MAINTENANCE_MODE === "true";
 

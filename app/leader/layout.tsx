@@ -15,6 +15,7 @@ import {
 import { getAllCategories, getAllProducts } from "@/data/food";
 import { UnauthorizedGate } from "@/components/auth/unauthorized-gate";
 import { IncompleteSetupGate } from "@/components/auth/incomplete-setup-gate";
+import MaintenanceGate from "@/components/auth/maintenance-gate";
 
 export default async function LeaderLayout({
   children,
@@ -60,6 +61,10 @@ export default async function LeaderLayout({
 
   if (incompleteAccountSetup) {
     return <IncompleteSetupGate />;
+  }
+
+  if (process.env.MAINTENANCE_MODE === "true") {
+    return <MaintenanceGate />;
   }
 
   return (

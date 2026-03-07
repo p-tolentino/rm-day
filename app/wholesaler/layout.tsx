@@ -13,6 +13,7 @@ import {
   hasNotSetupAccount,
   updateWholesalerEmail,
 } from "@/actions/wholesaler";
+import MaintenanceGate from "@/components/auth/maintenance-gate";
 
 export default async function UserLayout({
   children,
@@ -51,6 +52,10 @@ export default async function UserLayout({
     // hasSubmittedThisMonth(),
     hasNotSetupAccount(),
   ]);
+
+  if (process.env.MAINTENANCE_MODE === "true") {
+    return <MaintenanceGate />;
+  }
 
   return (
     <SidebarProvider>
