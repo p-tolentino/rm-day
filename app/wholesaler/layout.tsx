@@ -53,7 +53,10 @@ export default async function UserLayout({
     hasNotSetupAccount(),
   ]);
 
-  if (process.env.MAINTENANCE_MODE === "true") {
+  if (
+    (process.env.MAINTENANCE_MODE === "true" && role !== "SUPERADMIN") ||
+    role !== "ADMIN"
+  ) {
     return <MaintenanceGate />;
   }
 
