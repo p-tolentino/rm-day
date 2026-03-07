@@ -54,8 +54,8 @@ export default async function UserLayout({
   ]);
 
   if (
-    (process.env.MAINTENANCE_MODE === "true" && role !== "SUPERADMIN") ||
-    role !== "ADMIN"
+    process.env.MAINTENANCE_MODE === "true" &&
+    (role !== "SUPERADMIN" || role !== "ADMIN")
   ) {
     return <MaintenanceGate />;
   }
