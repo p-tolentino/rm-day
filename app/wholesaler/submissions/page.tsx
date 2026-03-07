@@ -2,7 +2,7 @@ import Header from "@/components/ui/header";
 import { MySubmissionsDataTable } from "./_components/submissions-table";
 import type { Metadata } from "next";
 import { getCurrentUserReports } from "@/data/reports";
-import { getUserLocations } from "@/data/wholesalers";
+import { getUserLocationsMap } from "@/data/wholesalers";
 import { getDeadline } from "@/data/deadline";
 
 export const metadata: Metadata = {
@@ -10,25 +10,22 @@ export const metadata: Metadata = {
 };
 
 export default async function UserSubmissions() {
-  const reports = (await getCurrentUserReports()) || [];
+  const [rawReports, userLocationsMap, acceptReports] = await Promise.all([
+    getCurrentUserReports(),
+    getUserLocationsMap(),
+    getDeadline(),
+  ]);
 
-  const userLocations = await getUserLocations();
+  const reports = rawReports || [];
 
-  const formattedReports = reports.map((report) => {
-    const userInfo = userLocations?.find(
-      (user) => user.idNum === report.wholesalerId
-    );
-
-    if (userInfo) {
+  const formattedReports = reports
+    .map((report) => {
+      const userInfo = userLocationsMap.get(report.wholesalerId);
+      if (!userInfo) return null;
       const { subTeam, city, country, idNum, profession } = userInfo;
-
       return { ...report, subTeam, country, idNum, profession, city };
-    } else {
-      return [];
-    }
-  });
-
-  const acceptReports = await getDeadline();
+    })
+    .filter(Boolean);
 
   return (
     <>
@@ -36,7 +33,7 @@ export default async function UserSubmissions() {
       <div className="container mx-auto py-10">
         <MySubmissionsDataTable
           data={formattedReports}
-          userLocations={userLocations || []}
+          userLocations={[...userLocationsMap.values()]}
           acceptReports={acceptReports}
         />
       </div>

@@ -113,6 +113,7 @@ const Header = ({
                 </div>
               </DialogContent>
             </Dialog>
+
             <Dialog open={productOpen} onOpenChange={setProductOpen}>
               <DialogTrigger asChild>
                 <Button

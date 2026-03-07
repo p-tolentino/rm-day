@@ -2,7 +2,7 @@ import Header from "@/components/ui/header";
 import { ReportDataTable } from "./_components/ranking-table";
 import type { Metadata } from "next";
 import { getAllReports } from "@/data/reports";
-import { getUserLocations } from "@/data/wholesalers";
+import { getUserLocationsMap } from "@/data/wholesalers";
 import { getDeadline } from "@/data/deadline";
 
 export const metadata: Metadata = {
@@ -10,25 +10,20 @@ export const metadata: Metadata = {
 };
 
 export default async function Ranking() {
-  const reports = await getAllReports();
+  const [reports, userLocationsMap, acceptReports] = await Promise.all([
+    getAllReports(),
+    getUserLocationsMap(),
+    getDeadline(),
+  ]);
 
-  const userLocations = await getUserLocations();
-
-  const formattedReports = reports.map((report) => {
-    const userInfo = userLocations?.find(
-      (user) => user.idNum === report.wholesalerId
-    );
-
-    if (userInfo) {
+  const formattedReports = reports
+    .map((report) => {
+      const userInfo = userLocationsMap.get(report.wholesalerId);
+      if (!userInfo) return null;
       const { subTeam, city, country, idNum, profession, avatar } = userInfo;
-
       return { ...report, subTeam, country, idNum, profession, city, avatar };
-    } else {
-      return [];
-    }
-  });
-
-  const acceptReports = await getDeadline();
+    })
+    .filter(Boolean);
 
   return (
     <>
@@ -36,7 +31,7 @@ export default async function Ranking() {
       <div className="container mx-auto py-10">
         <ReportDataTable
           data={formattedReports.sort((a, b) => b.cmir - a.cmir)}
-          userLocations={userLocations || []}
+          userLocations={[...userLocationsMap.values()]}
           acceptReports={acceptReports}
         />
       </div>

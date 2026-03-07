@@ -306,7 +306,7 @@ export default function ProfilePage({
               </div>
 
               {/* Right column with info */}
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 px-2">
                 <div className="flex flex-wrap items-center justify-between gap-4 mb-10">
                   <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-red-600 bg-clip-text text-transparent break-words">
                     {`${profile.firstName} ${profile.middleName ? profile.middleName.charAt(0) + "." : ""} ${profile.lastName}`}
@@ -488,7 +488,7 @@ export default function ProfilePage({
                             className={cn(
                               "relative transition-all duration-300 w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 lg:w-52 lg:h-52",
                               achievement.achieved
-                                ? "drop-shadow-[0_0_20px_rgba(168,85,247,0.7)]"
+                                ? "drop-shadow-[0_0_20px_rgba(255,215,0,0.7)]"
                                 : "grayscale",
                             )}
                           >

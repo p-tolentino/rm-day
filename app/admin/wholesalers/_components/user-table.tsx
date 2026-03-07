@@ -21,6 +21,15 @@ import {
   X,
   Check,
   ChevronsUpDown,
+  Filter,
+  Columns,
+  ArrowUp,
+  ArrowDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Inbox,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -60,6 +69,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 import {
   BLC_TITLES,
@@ -71,7 +88,6 @@ import { subTeams } from "@/utils/subteams";
 import { UserLocation } from "../../ranking/_components/ranking-table";
 import { RoleToggle } from "./role-toggle";
 import { CellAction } from "./cell-action";
-import { Separator } from "@/components/ui/separator";
 
 function formatCurrency(amount: number) {
   if (isNaN(amount)) return "Invalid amount";
@@ -110,7 +126,7 @@ export type User = {
 
 const createColumns = (
   userLocations: UserLocation[] | undefined,
-  role: string
+  role: string,
 ): ColumnDef<User>[] => [
   {
     accessorKey: "rowNumber",
@@ -209,7 +225,7 @@ const createColumns = (
       const achievements = row.original.achievements?.bigLeagueCircle;
       const highestTitle = getHighestAchievedTitle(
         achievements,
-        BLC_TITLES.map((t) => t.title)
+        BLC_TITLES.map((t) => t.title),
       );
       return <div>{highestTitle}</div>;
     },
@@ -217,7 +233,7 @@ const createColumns = (
       const achievements = row.original.achievements?.bigLeagueCircle;
       const highestTitle = getHighestAchievedTitle(
         achievements,
-        BLC_TITLES.map((t) => t.title)
+        BLC_TITLES.map((t) => t.title),
       );
       return value.includes(highestTitle);
     },
@@ -234,7 +250,7 @@ const createColumns = (
       const achievements = row.original.achievements?.wealthBuildersCircle;
       const highestTitle = getHighestAchievedTitle(
         achievements,
-        WBC_TITLES.map((t) => t.title)
+        WBC_TITLES.map((t) => t.title),
       );
       return <div>{highestTitle}</div>;
     },
@@ -242,7 +258,7 @@ const createColumns = (
       const achievements = row.original.achievements?.wealthBuildersCircle;
       const highestTitle = getHighestAchievedTitle(
         achievements,
-        WBC_TITLES.map((t) => t.title)
+        WBC_TITLES.map((t) => t.title),
       );
       return value.includes(highestTitle);
     },
@@ -273,7 +289,15 @@ const createColumns = (
   },
 ];
 
-// TODO: FIX TYPE SAFETY
+const filterDisplayNames: Record<string, string> = {
+  subTeam: "Sub-Team",
+  country: "Country",
+  city: "City",
+  bigLeagueTitle: "BLC",
+  wealthBuildersTitle: "WBC",
+  search: "Search",
+};
+
 interface WholesalerDataTableProps {
   data: User[];
   userLocations: UserLocation[] | undefined;
@@ -291,6 +315,7 @@ export function WholesalerDataTable({
   const [globalFilter, setGlobalFilter] = useState("");
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const [openCountry, setOpenCountry] = useState(false);
   const [openCity, setOpenCity] = useState(false);
@@ -299,7 +324,7 @@ export function WholesalerDataTable({
 
   const columns = useMemo(
     () => createColumns(userLocations, role),
-    [userLocations, role]
+    [userLocations, role],
   );
 
   useEffect(() => {
@@ -333,7 +358,7 @@ export function WholesalerDataTable({
         Array.from(locations.entries()).map(([country, cities]) => [
           country,
           Array.from(cities).sort(),
-        ])
+        ]),
       ),
     };
   }, [userLocations]);
@@ -344,6 +369,11 @@ export function WholesalerDataTable({
       .getColumn("country")
       ?.setFilterValue(country === selectedCountry ? undefined : country);
     setOpenCountry(false);
+    // Clear city when country changes
+    if (country !== selectedCountry) {
+      setSelectedCity(null);
+      table.getColumn("city")?.setFilterValue(undefined);
+    }
   };
 
   const handleCityChange = (city: string) => {
@@ -351,7 +381,7 @@ export function WholesalerDataTable({
     table
       .getColumn("city")
       ?.setFilterValue(city === selectedCity ? undefined : city);
-    setOpenCountry(false);
+    setOpenCity(false);
   };
 
   const table = useReactTable({
@@ -384,54 +414,161 @@ export function WholesalerDataTable({
     setSelectedCity(null);
   };
 
+  // Get active filters for badges
+  const activeFilters = useMemo(() => {
+    const filters: { id: string; name: string; value: string }[] = [];
+    columnFilters.forEach((filter) => {
+      if (filter.value && Array.isArray(filter.value)) {
+        filters.push({
+          id: filter.id,
+          name: filterDisplayNames[filter.id] || filter.id,
+          value: filter.value.join(", "),
+        });
+      } else if (filter.value) {
+        filters.push({
+          id: filter.id,
+          name: filterDisplayNames[filter.id] || filter.id,
+          value: String(filter.value),
+        });
+      }
+    });
+    if (globalFilter) {
+      filters.push({
+        id: "search",
+        name: filterDisplayNames.search || "Search",
+        value: globalFilter,
+      });
+    }
+    return filters;
+  }, [columnFilters, globalFilter]);
+
   return (
-    <div className="w-full">
-      {/* Search & Filter */}
-      <div className="flex items-end justify-between py-4">
-        {/* Global Filter or Search Function */}
-        <div className="flex items-end space-x-2 w-full">
-          <div className="relative w-1/2">
-            <Input
-              className="peer pe-9 ps-9"
-              placeholder="Search..."
-              type="text"
-              value={globalFilter ?? ""}
-              onChange={(event) => setGlobalFilter(String(event.target.value))}
-              disabled={!(data.length > 0)}
-            />
-            <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80 peer-disabled:opacity-50">
-              {isLoading ? (
-                <LoaderCircle
-                  className="animate-spin"
-                  size={16}
-                  strokeWidth={2}
-                  role="status"
-                  aria-label="Loading..."
-                />
-              ) : (
-                <Search size={16} strokeWidth={2} aria-hidden="true" />
-              )}
-            </div>
-            {globalFilter && (
-              <Button
-                variant="link"
-                onClick={() => setGlobalFilter("")}
-                className="absolute inset-y-0 right-0 flex items-center pr-3"
-              >
-                <X size={16} />
-              </Button>
+    <div className="w-full space-y-4">
+      {/* Search and Filter Toggle */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="relative w-full sm:w-96">
+          <Input
+            className="peer pe-9 ps-9"
+            placeholder="Search..."
+            type="text"
+            value={globalFilter ?? ""}
+            onChange={(event) => setGlobalFilter(String(event.target.value))}
+            disabled={!(data.length > 0)}
+          />
+          <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80 peer-disabled:opacity-50">
+            {isLoading ? (
+              <LoaderCircle
+                className="animate-spin"
+                size={16}
+                strokeWidth={2}
+                role="status"
+                aria-label="Loading..."
+              />
+            ) : (
+              <Search size={16} strokeWidth={2} aria-hidden="true" />
             )}
           </div>
+          {globalFilter && (
+            <Button
+              variant="link"
+              onClick={() => setGlobalFilter("")}
+              className="absolute inset-y-0 right-0 flex items-center pr-3"
+            >
+              <X size={16} />
+            </Button>
+          )}
         </div>
 
-        {/* Column Filters */}
-        <div className="flex items-end space-x-2">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowFilters(!showFilters)}
+            className="ml-auto"
+          >
+            <Filter className="mr-2 h-4 w-4" />
+            Filters
+            {activeFilters.length > 0 && (
+              <Badge variant="secondary" className="ml-2">
+                {activeFilters.length}
+              </Badge>
+            )}
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Columns className="mr-2 h-4 w-4" />
+                Columns
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={resetFilters} variant="outline" size="sm">
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Reset all filters</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </div>
+
+      {/* Filter Badges */}
+      {activeFilters.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {activeFilters.map((filter) => (
+            <Badge key={filter.id} variant="secondary" className="gap-1">
+              <span className="font-semibold">{filter.name}:</span>{" "}
+              {filter.value}
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => {
+                  if (filter.id === "search") {
+                    setGlobalFilter("");
+                  } else {
+                    table.getColumn(filter.id)?.setFilterValue(undefined);
+                    if (filter.id === "country") setSelectedCountry(null);
+                    if (filter.id === "city") setSelectedCity(null);
+                  }
+                }}
+              />
+            </Badge>
+          ))}
+        </div>
+      )}
+
+      {/* Expandable Filters */}
+      {showFilters && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 p-4 border rounded-md bg-muted/50">
+          {/* Sub-team filter */}
           <div>
-            <label
-              htmlFor="subTeam-filter"
-              className="text-sm font-medium mr-2"
-            >
-              Sub-Team:
+            <label htmlFor="subTeam-filter" className="text-sm font-medium">
+              Sub-Team
             </label>
             <Select
               onValueChange={(value) =>
@@ -440,7 +577,7 @@ export function WholesalerDataTable({
                   ?.setFilterValue(
                     value === table.getColumn("subTeam")?.getFilterValue()
                       ? undefined
-                      : value
+                      : value,
                   )
               }
               value={
@@ -448,7 +585,7 @@ export function WholesalerDataTable({
               }
               disabled={!(data.length > 0)}
             >
-              <SelectTrigger id="subTeam-filter" className="w-[180px]">
+              <SelectTrigger id="subTeam-filter" className="w-full">
                 <SelectValue placeholder="Select..." />
               </SelectTrigger>
               <SelectContent>
@@ -461,12 +598,10 @@ export function WholesalerDataTable({
             </Select>
           </div>
 
+          {/* Country combobox */}
           <div>
-            <label
-              htmlFor="country-filter"
-              className="text-sm font-medium mr-2"
-            >
-              Country:
+            <label htmlFor="country-filter" className="text-sm font-medium">
+              Country
             </label>
             <Popover open={openCountry} onOpenChange={setOpenCountry}>
               <PopoverTrigger asChild disabled={!(data.length > 0)}>
@@ -474,7 +609,7 @@ export function WholesalerDataTable({
                   variant="outline"
                   role="combobox"
                   aria-expanded={openCountry}
-                  className="w-[200px] justify-between"
+                  className="w-full justify-between"
                 >
                   {selectedCountry || "Select..."}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -483,7 +618,6 @@ export function WholesalerDataTable({
               <PopoverContent className="w-[200px] p-0">
                 <Command>
                   <CommandInput placeholder="Search country..." />
-
                   <CommandList>
                     <CommandEmpty>No country found.</CommandEmpty>
                     <CommandGroup>
@@ -497,7 +631,7 @@ export function WholesalerDataTable({
                               "mr-2 h-4 w-4",
                               selectedCountry === country
                                 ? "opacity-100"
-                                : "opacity-0"
+                                : "opacity-0",
                             )}
                           />
                           {country}
@@ -510,18 +644,18 @@ export function WholesalerDataTable({
             </Popover>
           </div>
 
+          {/* City combobox */}
           <div>
-            <label htmlFor="city-filter" className="text-sm font-medium mr-2">
-              City:
+            <label htmlFor="city-filter" className="text-sm font-medium">
+              City
             </label>
             <Popover open={openCity} onOpenChange={setOpenCity}>
-              <PopoverTrigger asChild>
+              <PopoverTrigger asChild disabled={!selectedCountry}>
                 <Button
                   variant="outline"
                   role="combobox"
                   aria-expanded={openCity}
-                  className="w-[200px] justify-between"
-                  disabled={!selectedCountry}
+                  className="w-full justify-between"
                 >
                   {!selectedCountry
                     ? "Select a country first"
@@ -535,29 +669,25 @@ export function WholesalerDataTable({
                   <CommandList>
                     <CommandEmpty>No city found.</CommandEmpty>
                     <CommandGroup>
-                      {Object.entries(availableLocations.citiesByCountry).map(
-                        ([country, cities]) => (
-                          <div key={country}>
-                            {country === selectedCountry &&
-                              cities.map((city) => (
-                                <CommandItem
-                                  key={city}
-                                  onSelect={() => handleCityChange(city)}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      selectedCity === city
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {city}
-                                </CommandItem>
-                              ))}
-                          </div>
-                        )
-                      )}
+                      {selectedCountry &&
+                        availableLocations.citiesByCountry[
+                          selectedCountry
+                        ]?.map((city) => (
+                          <CommandItem
+                            key={city}
+                            onSelect={() => handleCityChange(city)}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectedCity === city
+                                  ? "opacity-100"
+                                  : "opacity-0",
+                              )}
+                            />
+                            {city}
+                          </CommandItem>
+                        ))}
                     </CommandGroup>
                   </CommandList>
                 </Command>
@@ -565,12 +695,13 @@ export function WholesalerDataTable({
             </Popover>
           </div>
 
+          {/* BLC filter */}
           <div>
             <label
               htmlFor="bigLeagueTitle-filter"
-              className="text-sm font-medium mr-2"
+              className="text-sm font-medium"
             >
-              BLC:
+              BLC
             </label>
             <Select
               onValueChange={(value) =>
@@ -580,7 +711,7 @@ export function WholesalerDataTable({
                     value ===
                       table.getColumn("bigLeagueTitle")?.getFilterValue()
                       ? undefined
-                      : value
+                      : value,
                   )
               }
               value={
@@ -589,7 +720,7 @@ export function WholesalerDataTable({
                   ?.getFilterValue() as string) || ""
               }
             >
-              <SelectTrigger id="bigLeagueTitle-filter" className="w-[180px]">
+              <SelectTrigger id="bigLeagueTitle-filter" className="w-full">
                 <SelectValue placeholder="Select..." />
               </SelectTrigger>
               <SelectContent>
@@ -602,12 +733,13 @@ export function WholesalerDataTable({
             </Select>
           </div>
 
+          {/* WBC filter */}
           <div>
             <label
               htmlFor="wealthBuilderTitle-filter"
-              className="text-sm font-medium mr-2"
+              className="text-sm font-medium"
             >
-              WBC:
+              WBC
             </label>
             <Select
               onValueChange={(value) =>
@@ -617,7 +749,7 @@ export function WholesalerDataTable({
                     value ===
                       table.getColumn("wealthBuildersTitle")?.getFilterValue()
                       ? undefined
-                      : value
+                      : value,
                   )
               }
               value={
@@ -626,10 +758,7 @@ export function WholesalerDataTable({
                   ?.getFilterValue() as string) || ""
               }
             >
-              <SelectTrigger
-                id="wealthBuildersTitle-filter"
-                className="w-[180px]"
-              >
+              <SelectTrigger id="wealthBuilderTitle-filter" className="w-full">
                 <SelectValue placeholder="Select..." />
               </SelectTrigger>
               <SelectContent>
@@ -641,20 +770,8 @@ export function WholesalerDataTable({
               </SelectContent>
             </Select>
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button onClick={resetFilters} variant="outline" size="icon">
-                  <RotateCcw className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Reset all filters</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </div>
-      </div>
+      )}
 
       {/* Data Table */}
       <div className="rounded-md border">
@@ -666,12 +783,25 @@ export function WholesalerDataTable({
                   {headerGroup.headers.map((header) => {
                     return (
                       <TableHead key={header.id} className="whitespace-nowrap">
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
+                        {header.isPlaceholder ? null : (
+                          <div
+                            className={cn(
+                              "flex items-center gap-1",
+                              header.column.getCanSort() &&
+                                "cursor-pointer select-none hover:underline",
                             )}
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                            {{
+                              asc: <ArrowUp className="ml-1 h-4 w-4" />,
+                              desc: <ArrowDown className="ml-1 h-4 w-4" />,
+                            }[header.column.getIsSorted() as string] ?? null}
+                          </div>
+                        )}
                       </TableHead>
                     );
                   })}
@@ -683,12 +813,13 @@ export function WholesalerDataTable({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="hover:bg-muted/50"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="whitespace-nowrap">
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -697,33 +828,43 @@ export function WholesalerDataTable({
             </TableBody>
           </Table>
         ) : (
-          <div className="h-24 text-center flex items-center justify-center text-gray-400 text-sm italic">
-            No results found.
+          <div className="h-64 flex flex-col items-center justify-center text-muted-foreground">
+            <Inbox className="h-12 w-12 mb-4" />
+            <p className="text-sm">No results found.</p>
+            {(globalFilter || columnFilters.length > 0) && (
+              <Button variant="link" onClick={resetFilters} className="mt-2">
+                Clear all filters
+              </Button>
+            )}
           </div>
         )}
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between space-x-2 py-4">
-        <div className="flex text-sm text-muted-foreground items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <div>
             {table.getFilteredRowModel().rows.length > 0 ? (
-              `Showing ${
-                table.getState().pagination.pageIndex *
+              <>
+                Showing{" "}
+                {table.getState().pagination.pageIndex *
                   table.getState().pagination.pageSize +
-                1
-              } to ${Math.min(
-                (table.getState().pagination.pageIndex + 1) *
-                  table.getState().pagination.pageSize,
-                table.getFilteredRowModel().rows.length
-              )} of ${table.getFilteredRowModel().rows.length} results`
+                  1}{" "}
+                to{" "}
+                {Math.min(
+                  (table.getState().pagination.pageIndex + 1) *
+                    table.getState().pagination.pageSize,
+                  table.getFilteredRowModel().rows.length,
+                )}{" "}
+                of {table.getFilteredRowModel().rows.length} results
+              </>
             ) : (
-              <span className="text-sm text-gray-400 italic">No results</span>
+              <span className="text-sm text-muted-foreground italic">
+                No results
+              </span>
             )}
           </div>
-          <div className="h-5">
-            <Separator orientation="vertical" />
-          </div>
+          <Separator orientation="vertical" className="h-5" />
           <div className="flex items-center space-x-2">
             <span className="text-sm text-muted-foreground">
               Rows per page:
@@ -749,22 +890,42 @@ export function WholesalerDataTable({
             </Select>
           </div>
         </div>
-        <div className="space-x-2">
+        <div className="flex items-center gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronsLeft className="h-4 w-4" />
+          </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Previous
+            <ChevronLeft className="h-4 w-4" />
           </Button>
+          <span className="text-sm px-2">
+            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount()}
+          </span>
           <Button
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Next
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronsRight className="h-4 w-4" />
           </Button>
         </div>
       </div>

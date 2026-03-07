@@ -108,7 +108,7 @@ function formatCurrency(amount: number) {
 
 const createColumns = (
   userLocations: UserLocation[] | undefined,
-  acceptReports: boolean
+  acceptReports: boolean,
 ): ColumnDef<Report>[] => [
   {
     accessorKey: "cmir",
@@ -155,7 +155,7 @@ const createColumns = (
     cell: ({ row }) => (
       <div>
         {Number(row.getValue("msr")).toLocaleString(
-          "en-US"
+          "en-US",
           // {
           //   minimumFractionDigits: 2,
           //   maximumFractionDigits: 2,
@@ -285,7 +285,7 @@ export function MySubmissionsDataTable({
 
   const columns = useMemo(
     () => createColumns(userLocations, acceptReports), // Pass the static rank array
-    [userLocations, acceptReports]
+    [userLocations, acceptReports],
   );
 
   const filteredData = useMemo(() => {
@@ -399,7 +399,7 @@ export function MySubmissionsDataTable({
                   variant={"outline"}
                   className={cn(
                     "w-[300px] justify-start text-left font-normal",
-                    !date && "text-muted-foreground"
+                    !date && "text-muted-foreground",
                   )}
                   disabled={!(data.length > 0)}
                 >
@@ -446,7 +446,7 @@ export function MySubmissionsDataTable({
                     value ===
                       table.getColumn("bigLeagueTitle")?.getFilterValue()
                       ? undefined
-                      : value
+                      : value,
                   )
               }
               value={
@@ -484,7 +484,7 @@ export function MySubmissionsDataTable({
                     value ===
                       table.getColumn("wealthBuildersTitle")?.getFilterValue()
                       ? undefined
-                      : value
+                      : value,
                   )
               }
               value={
@@ -546,7 +546,7 @@ export function MySubmissionsDataTable({
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </TableHead>
                     );
@@ -567,7 +567,7 @@ export function MySubmissionsDataTable({
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -594,7 +594,7 @@ export function MySubmissionsDataTable({
               } to ${Math.min(
                 (table.getState().pagination.pageIndex + 1) *
                   table.getState().pagination.pageSize,
-                table.getFilteredRowModel().rows.length
+                table.getFilteredRowModel().rows.length,
               )} of ${table.getFilteredRowModel().rows.length} results`
             ) : (
               <span className="text-sm text-gray-400 italic">No results</span>

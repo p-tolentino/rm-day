@@ -51,8 +51,8 @@ export async function updateSession(request: NextRequest) {
 
   const isMaintenance = process.env.MAINTENANCE_MODE === "true";
 
-  if (request.nextUrl.pathname !== `/maintenance` && isMaintenance) {
-    // no user, potentially respond by redirecting the user to the login page
+  if (user && request.nextUrl.pathname !== `/maintenance` && isMaintenance) {
+    // maintenance
     const url = request.nextUrl.clone();
     url.pathname = "/maintenance";
     return NextResponse.redirect(url);

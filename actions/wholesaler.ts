@@ -19,7 +19,7 @@ const formatDate = (date: Date): string => {
 };
 
 export async function registerWholesalerInfo(
-  values: z.infer<typeof registerSchema>
+  values: z.infer<typeof registerSchema>,
 ) {
   const supabase = await createClient();
 
@@ -103,7 +103,7 @@ export async function registerWholesalerInfo(
 }
 
 export async function updateWholesalerInfo(
-  values: z.infer<typeof editProfileSchema>
+  values: z.infer<typeof editProfileSchema>,
 ) {
   const supabase = await createClient();
 
@@ -333,15 +333,13 @@ export async function hasNotSetupAccount() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // if (!user) {
-  //   return { message: "User is not logged in." };
-  // }
-
   const { data: currentUser } = await supabase
     .from("wholesalers")
-    .select("*")
+    .select("subTeam, sponsor, country, profession")
     .eq("email", user?.email)
     .single();
+
+  if (!currentUser) return true;
 
   const { subTeam, sponsor, country, profession } = currentUser;
   const noAccount = !subTeam || !sponsor || !country || !profession;

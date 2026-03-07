@@ -5,74 +5,66 @@ import {
 } from "./_components/overall-ranking-table";
 import type { Metadata } from "next";
 import { getAllReports } from "@/data/reports";
-import { getUserLocations } from "@/data/wholesalers";
+import { getUserLocationsMap } from "@/data/wholesalers";
 
 export const metadata: Metadata = {
   title: "Overall Ranking",
 };
 
+/**
+ * Consolidates all monthly reports per user into a single running total.
+ * Uses a Map for a single O(n) pass instead of nested loops.
+ */
 const consolidateReports = (reports: Report[]): Report[] => {
   const userMap = new Map<string, Report>();
 
-  reports.forEach((report) => {
-    const userId = report.wholesalerId;
-    if (userMap.has(userId)) {
-      const existingReport = userMap.get(userId)!;
-      existingReport.cmir += report.cmir;
-      existingReport.msr += report.msr;
-      existingReport.food += report.food;
+  for (const report of reports) {
+    const existing = userMap.get(report.wholesalerId);
+    if (existing) {
+      existing.cmir += report.cmir;
+      existing.msr += report.msr;
+      existing.food += report.food;
     } else {
-      userMap.set(userId, { ...report });
+      userMap.set(report.wholesalerId, { ...report });
     }
-  });
+  }
 
-  // Convert the map to an array and sort by the desired metric (e.g., `CMIR`)
-  const consolidatedReports = Array.from(userMap.values()).sort(
-    (a, b) => b.cmir - a.cmir // Sort by `CMIR` in descending order
-  );
-
-  return consolidatedReports;
+  return Array.from(userMap.values()).sort((a, b) => b.cmir - a.cmir);
 };
 
 export default async function OverallRanking() {
-  const reports = await getAllReports(); // Fetch all reports
+  const [reports, userLocationsMap] = await Promise.all([
+    getAllReports(),
+    getUserLocationsMap(),
+  ]);
 
-  const consolidatedReports = consolidateReports(reports); // Consolidate and sort the data
+  const consolidated = consolidateReports(reports);
 
-  const userLocations = await getUserLocations();
-
-  const formattedReports = consolidatedReports
+  const formattedReports = consolidated
     .map((report) => {
-      const userInfo = userLocations?.find(
-        (user) => user.idNum === report.wholesalerId
-      );
-
-      if (userInfo) {
-        const {
-          subTeam,
-          country,
-          idNum,
-          profession,
-          avatar,
-          totalIncome,
-          totalWholesale,
-        } = userInfo;
-
-        return {
-          ...report,
-          wholesale: totalWholesale,
-          income: totalIncome,
-          subTeam,
-          country,
-          wholesalerId: idNum,
-          profession,
-          avatar,
-        };
-      } else {
-        return null;
-      }
+      const userInfo = userLocationsMap.get(report.wholesalerId);
+      if (!userInfo) return null;
+      const {
+        subTeam,
+        country,
+        idNum,
+        profession,
+        avatar,
+        totalWholesale,
+        totalIncome,
+      } = userInfo;
+      return {
+        ...report,
+        wholesale: totalWholesale,
+        income: totalIncome,
+        subTeam,
+        country,
+        wholesalerId: idNum,
+        profession,
+        avatar,
+      };
     })
-    .filter((report): report is Report => report !== null);
+    .filter((r): r is Report => r !== null);
 
   return (
     <>
@@ -80,7 +72,7 @@ export default async function OverallRanking() {
       <div className="container mx-auto py-10">
         <OverallRankingDataTable
           data={formattedReports}
-          userLocations={userLocations || []}
+          userLocations={[...userLocationsMap.values()]}
         />
       </div>
     </>
