@@ -72,7 +72,7 @@ export default async function OverallRanking() {
       <div className="container mx-auto py-10">
         <OverallRankingDataTable
           data={formattedReports}
-          userLocations={[...userLocationsMap.values()]}
+          userLocations={Array.from(userLocationsMap.values())}
         />
       </div>
     </>

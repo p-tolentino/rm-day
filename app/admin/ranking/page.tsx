@@ -31,7 +31,7 @@ export default async function Ranking() {
       <div className="container mx-auto py-10">
         <ReportDataTable
           data={formattedReports.sort((a, b) => b.cmir - a.cmir)}
-          userLocations={[...userLocationsMap.values()]}
+          userLocations={Array.from(userLocationsMap.values())}
           acceptReports={acceptReports}
         />
       </div>
