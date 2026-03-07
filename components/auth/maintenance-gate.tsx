@@ -24,7 +24,7 @@ export default async function MaintenanceGate() {
   }
 
   if (role === "SUPERADMIN" || role === "ADMIN") {
-    redirect("/dashboard");
+    redirect("/wholesaler/profile");
   }
 
   return (
