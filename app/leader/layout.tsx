@@ -63,7 +63,7 @@ export default async function LeaderLayout({
     return <IncompleteSetupGate />;
   }
 
-  if (process.env.MAINTENANCE_MODE === "true") {
+  if (process.env.MAINTENANCE_MODE === "true" && role === "LEADER") {
     return <MaintenanceGate />;
   }
 
